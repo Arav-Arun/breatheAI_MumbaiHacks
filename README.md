@@ -1,29 +1,13 @@
-# 🌬️ BREATHAI - Agentic AI for India's Pollution Crisis
-
+# 🌬️ BreathAI - Clarity in every breath
 A comprehensive agentic AI system designed to help individuals navigate India's severe air pollution problem through intelligent, autonomous agents that collect data, reason about health impacts, plan actions, and learn from user feedback.
 
 ## 🎯 Features
 
 ### Core Agentic Architecture
 
-1. **Environment Agent** - Collects real-time environmental data (AQI, PM2.5, weather, fire hotspots)
+1. **Environment Agent** - Collects real time environmental data (AQI, PM2.5, weather, fire hotspots)
 2. **Health Reasoning Agent** - LLM-powered health impact prediction
 3. **Planner Agent** - Generates actionable daily health plans
-4. **Notifier Agent** - Beautiful Streamlit UI with real-time alerts
-5. **Community Health Agent** - Predicts hospital surge and community risk
-6. **Feedback Agent** - Tracks user symptoms and refines predictions
-
-### India/Delhi-Specific Features
-
-- 🌫️ Hyperlocal pollution monitoring
-- 🔥 Stubble smoke influx detection
-- 🌅 Golden Hour outdoor window prediction
-- 🏫 School Safety Mode
-- 🏠 Indoor Air Advisor
-- 🗺️ Anti-smog travel route advisor
-- 🚨 Crisis Mode (AQI > 400)
-- 🫁 Lung Recovery Companion
-- 🏥 Hospital surge heatmap
 
 ## 🚀 Quick Start
 
@@ -31,7 +15,7 @@ A comprehensive agentic AI system designed to help individuals navigate India's 
 
 1. Clone the repository:
 ```bash
-git clone <your-repo-url>
+git clone <https://github.com/Arav-Arun/breatheAI_MumbaiHacks.git>
 cd MumbaiHacks
 ```
 
@@ -48,23 +32,15 @@ cp .env.example .env
 
 ### Required API Keys
 
-- **OpenAI API Key** - For Health Reasoning Agent (LLM)
+- **Relevance API Key** - For Health Reasoning Agent (LLM)
 - **OpenWeatherMap API Key** - For weather and air quality data
-- **NASA FIRMS API Key** (Optional) - For fire hotspot detection
-- **Google Maps API Key** (Optional) - For route planning
+- **NASA FIRMS API Key** - For fire hotspot detection
+- **Google Maps API Key**  - For route planning
 
 Get your keys:
-- OpenAI: https://platform.openai.com/api-keys
+- OpenAI: https://relevanceai.com/
 - OpenWeatherMap: https://openweathermap.org/api
 - NASA FIRMS: https://firms.modaps.eosdis.nasa.gov/api/
-
-### Run the Application
-
-```bash
-streamlit run app.py
-```
-
-The app will open in your browser at `http://localhost:8501`
 
 ## 📁 Project Structure
 
@@ -76,7 +52,7 @@ MumbaiHacks/
 │   ├── planner_agent.py          # Action planning
 │   ├── community_health_agent.py  # Surge prediction
 │   └── feedback_agent.py         # User feedback loop
-├── app.py                        # Main Streamlit app
+├── app.py                        # Main app
 ├── config.py                     # Configuration
 ├── requirements.txt              # Dependencies
 ├── .env.example                  # Environment template
@@ -106,15 +82,11 @@ Edit `config.py` to customize:
 1. **Environment Agent** collects real-time pollution and weather data
 2. **Health Reasoning Agent** (LLM) analyzes health impact based on user profile
 3. **Planner Agent** generates personalized daily recommendations
-4. **Community Health Agent** predicts hospital surge using ML models
-5. **Feedback Agent** learns from user symptoms to improve predictions
-6. **Notifier Agent** (UI) presents everything in a beautiful, actionable format
 
 ## 🏆 Hackathon Highlights
 
 - **Agentic Architecture** - Multiple autonomous agents working together
-- **LLM Integration** - GPT-4 powered health reasoning
-- **India-Focused** - Built specifically for Delhi/Mumbai pollution crisis
+- **Relevance LLM Integration** – Fast, reliable health reasoning
 - **Beautiful UI** - Production-ready Streamlit interface
 - **ML Models** - Hospital surge prediction using scikit-learn
 - **Real-time Data** - Live API integration
@@ -124,31 +96,14 @@ Edit `config.py` to customize:
 
 - **Python** - Core language
 - **Streamlit** - UI framework
-- **OpenAI GPT-4** - LLM reasoning
+- **Relevance AI LLM** - LLM reasoning
 - **OpenWeatherMap API** - Environmental data
 - **Plotly** - Data visualization
 - **Pandas** - Data processing
 - **scikit-learn** - ML models
 
-## 🎯 Future Enhancements
-
-- [ ] Real-time mask fit detection using MediaPipe
-- [ ] Google Maps integration for route planning
-- [ ] Mobile app version
-- [ ] Multi-city support with comparisons
-- [ ] Historical trend analysis
-- [ ] Community alerts and sharing
-- [ ] Integration with wearable devices
-
-## 📝 License
-
-This project is created for MumbaiHacks hackathon.
 
 ## 👥 Team
 
-Built with ❤️ for India's air quality crisis.
-
----
-
-**🌬️ BREATHAI - Breathe Easy, Live Healthy**
+Built with ❤️ by team TetraBytes for Mumbai Hacks 2025.
 
