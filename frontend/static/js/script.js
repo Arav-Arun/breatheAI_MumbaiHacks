@@ -392,20 +392,25 @@ function updateDashboard(data) {
     
     // Update Map
     if (data.micro_aqi) {
-        // Use the coordinates from the environment data or the first micro point
-        // Ideally we should have passed lat/lon in the response, but we can infer from env data if needed
-        // or just use the center of the micro points.
-        // Let's assume we want to center on the first point or the user's searched location.
-        // We need the original lat/lon. Let's extract from the first micro point as a fallback.
         const centerLat = data.micro_aqi[0].lat;
         const centerLon = data.micro_aqi[0].lon;
         updateMap(centerLat, centerLon, data.micro_aqi);
+    }
+    
+    // Show Detected Location
+    if (env.city) {
+        document.getElementById('detected-location').innerText = `📍 Detected Location: ${env.city}`;
+    } else {
+        document.getElementById('detected-location').innerText = "";
     }
 }
 
 let mapInstance = null;
 
 function updateMap(lat, lon, microData) {
+    // Ensure the map container is visible before initializing
+    const mapContainer = document.getElementById('map');
+    
     if (!mapInstance) {
         mapInstance = L.map('map').setView([lat, lon], 13);
         L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
@@ -415,13 +420,17 @@ function updateMap(lat, lon, microData) {
         }).addTo(mapInstance);
     } else {
         mapInstance.setView([lat, lon], 13);
-        // Clear existing markers
         mapInstance.eachLayer((layer) => {
             if (layer instanceof L.Marker || layer instanceof L.CircleMarker) {
                 mapInstance.removeLayer(layer);
             }
         });
     }
+
+    // Fix for map not rendering correctly in hidden container
+    setTimeout(() => {
+        mapInstance.invalidateSize();
+    }, 100);
 
     // Add User Location Marker
     L.marker([lat, lon]).addTo(mapInstance)

@@ -29,6 +29,7 @@ def get_environment_data(lat: float, lon: float) -> dict:
             "humidity": weather_data.get("main", {}).get("humidity"),
             "description": weather_data.get("weather", [{}])[0].get("description"),
             "icon": weather_data.get("weather", [{}])[0].get("icon"),
+            "city": weather_data.get("name"),
             "aqi": aqi_data.get("overall_aqi"),
             "pollutants": aqi_data
         }
