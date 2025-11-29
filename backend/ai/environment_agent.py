@@ -13,16 +13,36 @@ def get_environment_data(lat: float, lon: float) -> dict:
     """
     try:
         weather_url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={OPENWEATHER_API_KEY}&units=metric"
-        aqi_url = f"https://api.api-ninjas.com/v1/airquality?lat={lat}&lon={lon}"
+        # Use OpenWeatherMap for AQI as well to be consistent and reliable
+        aqi_url = f"http://api.openweathermap.org/data/2.5/air_pollution?lat={lat}&lon={lon}&appid={OPENWEATHER_API_KEY}"
 
         weather_res = requests.get(weather_url)
-        aqi_res = requests.get(aqi_url, headers={"X-Api-Key": AQI_API_KEY})
+        aqi_res = requests.get(aqi_url)
 
         weather_res.raise_for_status()
         aqi_res.raise_for_status()
 
         weather_data = weather_res.json()
         aqi_data = aqi_res.json()
+        
+        # Process OWM AQI data
+        aqi_record = aqi_data.get('list', [{}])[0]
+        owm_aqi = aqi_record.get('main', {}).get('aqi', 1)
+        components = aqi_record.get('components', {})
+        
+        # Map OWM AQI (1-5) to standard 0-500 scale (approximate)
+        aqi_map = {1: 40, 2: 80, 3: 120, 4: 180, 5: 250}
+        overall_aqi = aqi_map.get(owm_aqi, 50)
+        
+        # Format pollutants
+        pollutants = {
+            "PM2.5": {"concentration": components.get("pm2_5", 0)},
+            "PM10": {"concentration": components.get("pm10", 0)},
+            "NO2": {"concentration": components.get("no2", 0)},
+            "SO2": {"concentration": components.get("so2", 0)},
+            "O3": {"concentration": components.get("o3", 0)},
+            "CO": {"concentration": components.get("co", 0)}
+        }
 
         return {
             "temperature": weather_data.get("main", {}).get("temp"),
@@ -30,8 +50,8 @@ def get_environment_data(lat: float, lon: float) -> dict:
             "description": weather_data.get("weather", [{}])[0].get("description"),
             "icon": weather_data.get("weather", [{}])[0].get("icon"),
             "city": weather_data.get("name"),
-            "aqi": aqi_data.get("overall_aqi"),
-            "pollutants": aqi_data
+            "aqi": overall_aqi,
+            "pollutants": pollutants
         }
     except requests.RequestException as e:
         raise Exception(f"API Request Error: {str(e)}")
