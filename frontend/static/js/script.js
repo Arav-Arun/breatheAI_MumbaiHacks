@@ -439,23 +439,41 @@ function updateMap(lat, lon, microData) {
 
     // Add Micro-Zone Markers
     microData.forEach(zone => {
-        let color = '#4ade80'; // Green
-        if (zone.risk === 'Moderate') color = '#fbbf24'; // Yellow
-        if (zone.risk === 'High') color = '#fb923c'; // Orange
-        if (zone.risk === 'Severe') color = '#ef4444'; // Red
+        let color = '#4ade80'; // Good (Green)
+        let fillColor = '#4ade80';
+        
+        // Standard AQI Color Scale
+        if (zone.aqi > 300) {
+            color = '#7f1d1d'; // Hazardous (Maroon)
+            fillColor = '#991b1b';
+        } else if (zone.aqi > 200) {
+            color = '#7e22ce'; // Very Unhealthy (Purple)
+            fillColor = '#a855f7';
+        } else if (zone.aqi > 150) {
+            color = '#ef4444'; // Unhealthy (Red)
+            fillColor = '#f87171';
+        } else if (zone.aqi > 100) {
+            color = '#f97316'; // Unhealthy for Sensitive (Orange)
+            fillColor = '#fb923c';
+        } else if (zone.aqi > 50) {
+            color = '#eab308'; // Moderate (Yellow)
+            fillColor = '#facc15';
+        }
 
         L.circleMarker([zone.lat, zone.lon], {
-            radius: 8,
-            fillColor: color,
-            color: "#fff",
-            weight: 1,
+            radius: 12, // Increased size
+            fillColor: fillColor,
+            color: "#ffffff", // White border
+            weight: 2,
             opacity: 1,
-            fillOpacity: 0.8
+            fillOpacity: 0.9
         }).addTo(mapInstance)
         .bindPopup(`
-            <b>${zone.type}</b><br>
-            AQI: ${zone.aqi}<br>
-            Risk: ${zone.risk}
+            <div style="text-align: center;">
+                <strong style="font-size: 1.1em; color: ${color}">${zone.type}</strong><br>
+                <span style="font-size: 1.2em; font-weight: bold;">AQI: ${zone.aqi}</span><br>
+                <span style="color: #666;">Risk: ${zone.risk}</span>
+            </div>
         `);
     });
 }

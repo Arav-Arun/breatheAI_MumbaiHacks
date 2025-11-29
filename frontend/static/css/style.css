@@ -334,8 +334,8 @@ button.secondary:hover {
     .dashboard {
         grid-template-columns: 1fr;
     }
-    .card-radar, .card-aqi, .card-metrics, .card-small, .card-advice, .card-planner {
-        grid-column: span 1;
+    .card-radar, .card-aqi, .card-metrics, .card-small, .card-advice, .card-planner, .card-map {
+        grid-column: span 1 !important; /* Force single column */
         grid-row: auto;
     }
     .planner-grid {
@@ -351,6 +351,10 @@ button.secondary:hover {
     .container {
         padding: 1rem;
         border-radius: 20px;
+    }
+
+    .dashboard {
+        gap: 1rem; /* Symmetrical gap */
     }
 
     h1 {
@@ -384,11 +388,15 @@ button.secondary:hover {
     
     /* Chart Adjustments */
     .card-radar {
-        min-height: 350px; /* Give radar more height on mobile */
+        min-height: 350px;
+    }
+
+    .card-map {
+        min-height: 300px; /* Ensure map has height on mobile */
     }
 
     .card-aqi, .card-metrics {
-        min-height: 250px; /* Ensure gauges/charts aren't squashed */
+        min-height: 250px;
     }
 
     .card {
