@@ -654,8 +654,8 @@ input:checked + .slider:before {
 
     .footer-content {
         padding: 0.4rem 0.8rem;
-        font-size: 0.7rem; /* Slightly smaller */
-        gap: 0.3rem; /* Tighter gap */
+        font-size: 0.7rem;
+        gap: 0.3rem;
         width: 95%;
         max-width: 100%;
         justify-content: center;
@@ -664,12 +664,19 @@ input:checked + .slider:before {
     }
 
     .footer-logo {
-        height: 1.1em; /* Reduced size */
+        height: 1.1em;
         margin-bottom: -2px;
     }
 
     .footer-separator {
-        margin: 0 0.2rem; /* Tighter separator spacing */
+        margin: 0 0.2rem;
+    }
+    
+    /* Ensure icons stay together on mobile */
+    .footer-icons {
+        display: inline-flex;
+        align-items: center;
+        white-space: nowrap;
     }
 }
 
@@ -701,6 +708,7 @@ footer {
     border: 1px solid rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(10px);
     transition: transform 0.3s, border-color 0.3s;
+    flex-wrap: wrap; /* Allow wrapping on desktop if needed, though unlikely */
 }
 
 .footer-content:hover {
@@ -730,6 +738,12 @@ footer {
 .footer-separator {
     margin: 0 0.5rem;
     opacity: 0.3;
+}
+
+.footer-icons {
+    display: inline-flex;
+    align-items: center;
+    gap: 0; /* Gap handled by separator margin */
 }
 
 .github-link {
