@@ -376,28 +376,34 @@ function updateDashboard(data) {
         document.getElementById('mask-rec').innerText = plan.mask_level || "--";
         document.getElementById('hydration-rec').innerText = (plan.hydration_ml ? plan.hydration_ml + " ml" : "--");
 
-        const renderList = (id, items) => {
-            const ul = document.getElementById(id);
-            if (!items || !Array.isArray(items)) {
-                ul.innerHTML = '<li style="color: #94a3b8; font-style: italic;">No advice available</li>';
+        const renderPlannerSection = (id, content) => {
+            const container = document.getElementById(id);
+            if (!content) {
+                container.innerHTML = '<div style="color: #94a3b8; font-style: italic;">No advice available</div>';
                 return;
             }
-            ul.innerHTML = items.map(item => {
-                // Parse Markdown Bold
-                const formattedItem = item.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-                return `<li>${formattedItem}</li>`;
-            }).join('');
+            
+            // Parse Markdown
+            let html = content;
+            // Bold
+            html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            // Newlines to breaks
+            html = html.replace(/\n/g, '<br>');
+            // Bullet points to styled spans (optional, if AI still outputs bullets)
+            html = html.replace(/^- /gm, '• ');
+            
+            container.innerHTML = `<div class="planner-content">${html}</div>`;
         };
 
-        renderList('plan-morning', plan.morning_plan || []);
-        renderList('plan-afternoon', plan.afternoon_plan || []);
-        renderList('plan-evening', plan.evening_plan || []);
+        renderPlannerSection('plan-morning', plan.morning_plan);
+        renderPlannerSection('plan-afternoon', plan.afternoon_plan);
+        renderPlannerSection('plan-evening', plan.evening_plan);
     } else if (data.daily_plan && data.daily_plan.error) {
         // Handle Planner Error
         document.getElementById('mask-rec').innerText = "Error";
         document.getElementById('hydration-rec').innerText = "--";
         ['plan-morning', 'plan-afternoon', 'plan-evening'].forEach(id => {
-            document.getElementById(id).innerHTML = `<li style="color: #ef4444;">${data.daily_plan.error}</li>`;
+            document.getElementById(id).innerHTML = `<div style="color: #ef4444;">${data.daily_plan.error}</div>`;
         });
     }
     

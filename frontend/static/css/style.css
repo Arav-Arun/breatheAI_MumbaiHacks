@@ -17,9 +17,9 @@
 body {
     /* Blue Sky & Clouds Pattern */
     background: 
-        radial-gradient(circle at 20% 20%, rgba(186, 230, 253, 0.4) 0%, transparent 20%),
-        radial-gradient(circle at 80% 50%, rgba(186, 230, 253, 0.3) 0%, transparent 20%),
-        linear-gradient(135deg, #0288d1 0%, #29b6f6 50%, #b3e5fc 100%);
+        radial-gradient(circle at 20% 20%, rgba(186, 230, 253, 0.15) 0%, transparent 20%),
+        radial-gradient(circle at 80% 50%, rgba(186, 230, 253, 0.1) 0%, transparent 20%),
+        linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
     background-attachment: fixed;
     color: var(--text-primary);
     min-height: 100vh;
@@ -37,7 +37,7 @@ body {
     -webkit-backdrop-filter: blur(20px);
     border-radius: 32px;
     border: 1px solid var(--glass-border);
-    padding: 2.5rem;
+    padding: 2rem;
     box-shadow: 0 20px 50px rgba(0,0,0,0.2);
 }
 
@@ -404,7 +404,7 @@ input:checked + .slider:before {
 .planner-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
+    gap: 1.2rem;
     margin-top: 1rem;
 }
 
@@ -422,22 +422,14 @@ input:checked + .slider:before {
     font-size: 0.8rem;
 }
 
-.planner-list {
-    list-style: none;
-    font-size: 1.05rem; /* Increased from 0.9rem */
+.planner-content {
+    font-size: 1rem;
     color: var(--text-secondary);
+    line-height: 1.6;
 }
 
-.planner-list li {
-    margin-bottom: 0.3rem;
-    display: flex;
-    align-items: start;
-    gap: 0.5rem;
-}
-
-.planner-list li::before {
-    content: "•";
-    color: #4ade80;
+.planner-content strong {
+    color: #e0f2fe;
 }
 
 .health-content {
@@ -486,7 +478,7 @@ input:checked + .slider:before {
     }
     
     .container {
-        padding: 1.25rem;
+        padding: 1rem;
         border-radius: 20px;
     }
 

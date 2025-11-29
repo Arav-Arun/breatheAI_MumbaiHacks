@@ -7,13 +7,36 @@ load_dotenv()
 OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
 AQI_API_KEY = os.getenv("AQI_API_KEY")
 
+def calculate_aqi(pm25: float) -> int:
+    """
+    Calculates AQI based on PM2.5 concentration using US EPA standards.
+    Formula: Ip = [(Ihi - Ilo) / (BPhi - BPlo)] * (Cp - BPlo) + Ilo
+    """
+    c = round(pm25, 1)
+    
+    if c <= 12.0:
+        return int(round(((50 - 0) / (12.0 - 0)) * (c - 0) + 0))
+    elif c <= 35.4:
+        return int(round(((100 - 51) / (35.4 - 12.1)) * (c - 12.1) + 51))
+    elif c <= 55.4:
+        return int(round(((150 - 101) / (55.4 - 35.5)) * (c - 35.5) + 101))
+    elif c <= 150.4:
+        return int(round(((200 - 151) / (150.4 - 55.5)) * (c - 55.5) + 151))
+    elif c <= 250.4:
+        return int(round(((300 - 201) / (250.4 - 150.5)) * (c - 150.5) + 201))
+    elif c <= 350.4:
+        return int(round(((400 - 301) / (350.4 - 250.5)) * (c - 250.5) + 301))
+    elif c <= 500.4:
+        return int(round(((500 - 401) / (500.4 - 350.5)) * (c - 350.5) + 401))
+    else:
+        return 500
+
 def get_environment_data(lat: float, lon: float) -> dict:
     """
     Fetches weather and air quality data for a given latitude and longitude.
     """
     try:
         weather_url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={OPENWEATHER_API_KEY}&units=metric"
-        # Use OpenWeatherMap for AQI as well to be consistent and reliable
         aqi_url = f"http://api.openweathermap.org/data/2.5/air_pollution?lat={lat}&lon={lon}&appid={OPENWEATHER_API_KEY}"
 
         weather_res = requests.get(weather_url)
@@ -27,12 +50,11 @@ def get_environment_data(lat: float, lon: float) -> dict:
         
         # Process OWM AQI data
         aqi_record = aqi_data.get('list', [{}])[0]
-        owm_aqi = aqi_record.get('main', {}).get('aqi', 1)
         components = aqi_record.get('components', {})
+        pm25 = components.get('pm2_5', 0)
         
-        # Map OWM AQI (1-5) to standard 0-500 scale (approximate)
-        aqi_map = {1: 40, 2: 80, 3: 120, 4: 180, 5: 250}
-        overall_aqi = aqi_map.get(owm_aqi, 50)
+        # Calculate accurate AQI
+        overall_aqi = calculate_aqi(pm25)
         
         # Format pollutants
         pollutants = {
@@ -146,12 +168,9 @@ def get_aqi_forecast(lat: float, lon: float) -> list:
             date_str = dt.strftime('%Y-%m-%d')
             day_name = dt.strftime('%a') # Mon, Tue...
             
-            # Calculate granular AQI from PM2.5
+            # Calculate accurate AQI from PM2.5
             pm25 = item['components']['pm2_5']
-            # Simple conversion: PM2.5 * 4 (approximate US AQI scale for lower range)
-            # This gives more variance than the 1-5 scale
-            aqi_val = int(pm25 * 4)
-            if aqi_val < 10: aqi_val = 10 # Minimum baseline
+            aqi_val = calculate_aqi(pm25)
             
             if date_str not in daily_forecast:
                 daily_forecast[date_str] = {"day": day_name, "max_aqi": aqi_val, "date": date_str}
@@ -191,10 +210,9 @@ def get_aqi_history(lat: float, lon: float) -> list:
             date_str = dt.strftime('%Y-%m-%d')
             day_name = dt.strftime('%a')
             
-            # Calculate granular AQI from PM2.5
+            # Calculate accurate AQI from PM2.5
             pm25 = item['components']['pm2_5']
-            aqi_val = int(pm25 * 4)
-            if aqi_val < 10: aqi_val = 10
+            aqi_val = calculate_aqi(pm25)
             
             if date_str not in daily_history:
                 daily_history[date_str] = {"day": day_name, "max_aqi": aqi_val, "date": date_str}
@@ -206,28 +224,5 @@ def get_aqi_history(lat: float, lon: float) -> list:
         return sorted_history
         
     except requests.RequestException:
-        # Fallback: Simulate 7-day AQI history if API fails
-        import random
-        from datetime import datetime, timedelta
-        
-        history = []
-        today = datetime.now()
-        
-        for i in range(7, 0, -1):
-            date = today - timedelta(days=i)
-            day_name = date.strftime('%a')
-            date_str = date.strftime('%Y-%m-%d')
-            
-            # Simulate AQI with realistic variance
-            # Base it on a random trend
-            base_aqi = random.randint(80, 150)
-            variance = random.randint(-20, 20)
-            aqi = base_aqi + variance
-            
-            history.append({
-                "day": day_name,
-                "max_aqi": aqi,
-                "date": date_str
-            })
-            
-        return history
+        # Return empty list if API fails (No simulation)
+        return []

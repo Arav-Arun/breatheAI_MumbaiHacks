@@ -113,12 +113,9 @@ def generate_daily_plan(env_data: dict, health_analysis: str | dict) -> dict:
         evening_match = re.search(r'### Evening Plan\s*(.*?)\s*(?=###|$)', health_analysis, re.DOTALL | re.IGNORECASE)
         
         def parse_plan_text(text):
-            if not text: return []
-            # Split by newlines, but keep full sentences/paragraphs
-            lines = [line.strip() for line in text.split('\n') if line.strip()]
-            # Remove markdown bullet points but keep the text
-            clean_lines = [line.lstrip("- *").strip() for line in lines]
-            return clean_lines
+            if not text: return ""
+            # Return the full text, stripped of leading/trailing whitespace
+            return text.strip()
 
         if morning_match:
             morning_plan = parse_plan_text(morning_match.group(1))
@@ -132,45 +129,21 @@ def generate_daily_plan(env_data: dict, health_analysis: str | dict) -> dict:
     # Fallback to rule-based logic if AI parsing failed or returned empty
     if not morning_plan:
         if aqi > 150:
-            morning_plan = [
-                "Avoid outdoor exercise.",
-                "Keep windows closed.",
-                "Use air purifier if available."
-            ]
+            morning_plan = "**Avoid outdoor exercise.**\nKeep windows closed.\nUse air purifier if available."
         else:
-            morning_plan = [
-                "Good time for outdoor activities.",
-                "Ventilate your home.",
-                "Enjoy the fresh air."
-            ]
+            morning_plan = "**Good time for outdoor activities.**\nVentilate your home.\nEnjoy the fresh air."
 
     if not afternoon_plan:
         if aqi > 150:
-            afternoon_plan = [
-                "Stay indoors as much as possible.",
-                "Wear a mask if you must go out.",
-                "Drink plenty of water."
-            ]
+            afternoon_plan = "**Stay indoors as much as possible.**\nWear a mask if you must go out.\nDrink plenty of water."
         else:
-            afternoon_plan = [
-                "Carry a mask just in case.",
-                "Stay hydrated.",
-                "Monitor AQI levels."
-            ]
+            afternoon_plan = "**Carry a mask just in case.**\nStay hydrated.\nMonitor AQI levels."
 
     if not evening_plan:
         if aqi > 150:
-            evening_plan = [
-                "Avoid evening walks.",
-                "Run air purifier in bedroom.",
-                "Ensure windows are sealed."
-            ]
+            evening_plan = "**Avoid evening walks.**\nRun air purifier in bedroom.\nEnsure windows are sealed."
         else:
-            evening_plan = [
-                "Safe for evening walk.",
-                "Light ventilation allowed.",
-                "Relax and unwind."
-            ]
+            evening_plan = "**Safe for evening walk.**\nLight ventilation allowed.\nRelax and unwind."
     
     return {
         "mask_level": mask_level,
