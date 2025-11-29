@@ -7,9 +7,10 @@ class PlannerAgent:
     def __init__(self):
         pass
     
-    def generate_daily_plan(self, env_data, health_analysis):
         """Generate personalized daily health plan"""
-        aqi = env_data.get('aqi', 0)
+        aqi = env_data.get('aqi')
+        if aqi is None:
+            aqi = 0
         
         # Robustly handle health_analysis being a string or dict
         if isinstance(health_analysis, str):

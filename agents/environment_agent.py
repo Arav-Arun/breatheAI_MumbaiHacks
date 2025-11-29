@@ -19,8 +19,17 @@ def get_environment_data(lat, lon):
         f"lat={lat}&lon={lon}"
     )
 
-    weather = requests.get(weather_url).json()
-    aqi = requests.get(aqi_url, headers={"X-Api-Key": AQI_API_KEY}).json()
+    weather_res = requests.get(weather_url)
+    aqi_res = requests.get(aqi_url, headers={"X-Api-Key": AQI_API_KEY})
+
+    if weather_res.status_code != 200:
+        raise Exception(f"Weather API Error: {weather_res.status_code} {weather_res.text}")
+    
+    if aqi_res.status_code != 200:
+        raise Exception(f"AQI API Error: {aqi_res.status_code} {aqi_res.text}")
+
+    weather = weather_res.json()
+    aqi = aqi_res.json()
     
     data = {
         "temperature": weather.get("main", {}).get("temp"),

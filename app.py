@@ -38,10 +38,15 @@ def get_env(lat, lon):
     except Exception as e:
         health = "Health advice unavailable (Check OpenAI API Key). Data: " + str(env_data)
 
+    try:
+        daily_plan = planner.generate_daily_plan(env_data, health)
+    except Exception as e:
+        daily_plan = {"error": f"Planner error: {str(e)}"}
+
     response = {
         "environment": env_data,
         "health_advice": health,
-        "daily_plan": planner.generate_daily_plan(env_data, health)
+        "daily_plan": daily_plan
     }
     return jsonify(response)
 
