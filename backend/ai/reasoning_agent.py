@@ -33,40 +33,28 @@ def health_reasoning(env: dict) -> str:
         {env.get('pollutants')}
 
         **Task:**
-    Provide a **comprehensive and detailed** health risk assessment and a **lengthy, actionable** daily routine in markdown format. Use the following structure:
+    Provide a detailed health risk assessment and a daily routine in markdown format. Use the following structure:
 
     ### 📊 Executive Summary
-    (Detailed summary of the overall air quality, weather impact, and what it means for the user's day.)
+    (2-3 sentences summarizing the overall air quality and weather impact)
 
     ### 🧪 Pollutant Analysis
-    (Explain the primary pollutants of concern, their sources, and why they are dangerous in this specific context.)
+    (Briefly explain the primary pollutants of concern based on the data, e.g., High PM2.5)
 
     ### 🩺 Health Implications
-    (Detailed risks for sensitive groups (asthma, elderly, children) and the general population. Be specific.)
+    (Specific risks for sensitive groups and general population)
 
     ### 🛡️ Actionable Advice
-    (Extensive list of recommendations: masks (type), outdoor activities (duration/intensity), ventilation (when/how), hydration (specific amounts).)
+    (Bulleted list of specific recommendations: masks, outdoor activities, ventilation, hydration)
 
     ### 🌅 Morning Plan
-    (Provide 3-4 detailed bullet points. Include specific advice on:
-    - Commute precautions
-    - Best time for ventilation (if any)
-    - Morning exercise feasibility and intensity
-    - Breakfast/Hydration tips for immunity)
+    (Specific advice for morning activities, commute, and ventilation. Be detailed.)
 
     ### ☀️ Afternoon Plan
-    (Provide 3-4 detailed bullet points. Focus on:
-    - Managing peak heat/pollution hours
-    - Work/School environment adjustments
-    - Lunch choices for antioxidants
-    - Hydration reminders)
+    (Advice for the hottest/busiest part of the day. Work/School adjustments.)
 
     ### 🌙 Evening Plan
-    (Provide 3-4 detailed bullet points. Cover:
-    - Evening commute safety
-    - Post-exposure cleanup (showering/washing)
-    - Indoor air quality management for sleep
-    - Relaxation techniques for respiratory health)
+    (Advice for evening commute, exercise, and sleep environment.)
     """
         
         payload = {
