@@ -114,15 +114,16 @@ def generate_daily_plan(env_data: dict, health_analysis: str | dict) -> dict:
         
         if morning_match:
             morning_text = morning_match.group(1).strip()
-            morning_plan = [line.strip("- *") for line in morning_text.split('\n') if line.strip()]
+            # Split by newlines, strip whitespace, and remove bullet markers
+            morning_plan = [line.strip().lstrip("- *") for line in morning_text.split('\n') if line.strip()]
             
         if afternoon_match:
             afternoon_text = afternoon_match.group(1).strip()
-            afternoon_plan = [line.strip("- *") for line in afternoon_text.split('\n') if line.strip()]
+            afternoon_plan = [line.strip().lstrip("- *") for line in afternoon_text.split('\n') if line.strip()]
             
         if evening_match:
             evening_text = evening_match.group(1).strip()
-            evening_plan = [line.strip("- *") for line in evening_text.split('\n') if line.strip()]
+            evening_plan = [line.strip().lstrip("- *") for line in evening_text.split('\n') if line.strip()]
 
     # Fallback to rule-based logic if AI parsing failed or returned empty
     if not morning_plan:
