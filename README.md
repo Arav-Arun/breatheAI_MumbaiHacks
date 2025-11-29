@@ -1,110 +1,98 @@
-# 🌬️ BreathAI - Clarity in every breath
-A comprehensive agentic AI system designed to help individuals navigate India's severe air pollution problem through intelligent, autonomous agents that collect data, reason about health impacts, plan actions, and learn from user feedback.
+# 🌬️ BreatheAI - Clarity in every breath
 
-Pitch Video : 
-- https://drive.google.com/file/d/1dmzuqZSBQg4ZtEj9O7A5WwrxgPhQlMsr/view?usp=sharing
-### 🎯 Features
+A comprehensive agentic AI system designed to help individuals navigate India's severe air pollution problem through intelligent, autonomous agents that collect data, reason about health impacts, and plan personalized actions.
+
+![BreatheAI Dashboard](frontend/static/assets/favicon.jpg)
+
+## 🎯 Features
 
 ### Core Agentic Architecture
+1.  **Environment Agent**: Collects real-time environmental data (AQI, PM2.5, Weather) and simulates micro-zone pollution hotspots.
+2.  **Health Reasoning Agent**: Uses **Relevance AI** (LLM) to analyze health risks with deep scientific context.
+3.  **Planner Agent**: Generates actionable, rich-text daily health plans tailored to specific AQI levels.
 
-1. **Environment Agent** - Collects real time environmental data (AQI, PM2.5, weather, fire hotspots)
-2. **Health Reasoning Agent** - LLM-powered health impact prediction
-3. **Planner Agent** - Generates actionable daily health plans
+### 🎨 UI Features
+-   **Glassmorphism Design**: Modern, premium "Night Mode" UI with deep blue gradients.
+-   **Micro-Zone Map**: Interactive Leaflet.js map visualizing pollution hotspots (Traffic, Construction, etc.).
+-   **Deep Health Planner**: Detailed, 5-6 point health plans for Morning, Afternoon, and Evening.
+-   **Forecast & History**: 5-Day AQI Prediction and 7-Day Historical Analysis using OpenWeatherMap.
+-   **Real-time Updates**: Live data fetching and dynamic chart rendering.
+-   **Mobile Responsive**: Fully optimized for all screen sizes.
 
 ## 🚀 Quick Start
 
+### Prerequisites
+-   Python 3.8+
+-   `pip`
+
 ### Installation
 
-1. Clone the repository:
-```bash
-git clone <https://github.com/Arav-Arun/breatheAI_MumbaiHacks.git>
-cd MumbaiHacks
-```
+1.  Clone the repository:
+    ```bash
+    git clone https://github.com/Arav-Arun/breatheAI_MumbaiHacks.git
+    cd breatheAI_MumbaiHacks
+    ```
 
-2. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
+2.  Install dependencies:
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-3. Set up environment variables:
-```bash
-cp .env.example .env
-```
+3.  Set up environment variables:
+    Create a `.env` file in the root directory:
+    ```env
+    OPENWEATHER_API_KEY=your_key_here
+    RELEVANCE_PROJECT=your_project_id
+    RELEVANCE_API_KEY=your_api_key
+    RELEVANCE_REGION=your_region
+    ```
 
-### Required API Keys
+4.  Run the application:
+    ```bash
+    ./run.sh
+    ```
+    Or manually:
+    ```bash
+    python backend/app.py
+    ```
 
-- **Relevance API Key** - For Health Reasoning Agent (LLM)
-- **OpenWeatherMap API Key** - For weather and air quality data
-- **NASA FIRMS API Key** - For fire hotspot detection
-- **Google Maps API Key**  - For route planning
-
-Get your keys:
-- OpenAI: https://relevanceai.com/
-- OpenWeatherMap: https://openweathermap.org/api
-- NASA FIRMS: https://firms.modaps.eosdis.nasa.gov/api/
+5.  Open your browser at `http://localhost:5001`
 
 ## 📁 Project Structure
 
 ```
 MumbaiHacks/
-├── agents/
-│   ├── environment_agent.py      # Data collection
-│   ├── health_reasoning_agent.py  # LLM health analysis
-│   ├── planner_agent.py          # Action planning
-│   ├── community_health_agent.py  # Surge prediction
-│   └── feedback_agent.py         # User feedback loop
-├── app.py                        # Main app
-├── config.py                     # Configuration
-├── requirements.txt              # Dependencies
-├── .env.example                  # Environment template
-└── README.md                     # This file
+├── backend/
+│   ├── app.py                  # Main Flask Application
+│   └── ai/                     # Autonomous Agents
+│       ├── environment_agent.py # Data Collection & AQI Calculation
+│       ├── reasoning_agent.py   # LLM Health Analysis
+│       └── planner_agent.py     # Daily Plan Generation
+├── frontend/
+│   ├── templates/
+│   │   └── index.html          # Main Dashboard
+│   └── static/
+│       ├── css/                # Styles (Glassmorphism)
+│       ├── js/                 # Frontend Logic (Charts, Maps)
+│       └── assets/             # Images & Logos
+├── requirements.txt            # Python Dependencies
+├── vercel.json                 # Deployment Config
+└── README.md                   # Documentation
 ```
-
-## 🎨 UI Features
-
-- **Wide Layout** - Optimized for data visualization
-- **Color-Coded AQI** - Visual indicators for air quality levels
-- **Interactive Charts** - Plotly graphs for trends and forecasts
-- **Crisis Mode** - Special UI for severe pollution (AQI > 400)
-- **Tabbed Interface** - Organized by user flows
-- **Real-time Updates** - Live data refresh
-- **Responsive Design** - Works on desktop and tablet
-
-## 🔧 Configuration
-
-Edit `config.py` to customize:
-- Default location (latitude/longitude)
-- AQI color scheme
-- AQI thresholds
-- Hospital locations
-
-## 🤖 How It Works
-
-1. **Environment Agent** collects real-time pollution and weather data
-2. **Health Reasoning Agent** (LLM) analyzes health impact based on user profile
-3. **Planner Agent** generates personalized daily recommendations
-
-## 🏆 Hackathon Highlights
-
-- **Agentic Architecture** - Multiple autonomous agents working together
-- **Relevance LLM Integration** – Fast, reliable health reasoning
-- **Beautiful UI** - Production-ready Streamlit interface
-- **ML Models** - Hospital surge prediction using scikit-learn
-- **Real-time Data** - Live API integration
-- **User Feedback Loop** - Continuous learning system
 
 ## 📊 Tech Stack
 
-- **Python** - Core language
-- **Streamlit** - UI framework
-- **Relevance AI LLM** - LLM reasoning
-- **OpenWeatherMap API** - Environmental data
-- **Plotly** - Data visualization
-- **Pandas** - Data processing
-- **scikit-learn** - ML models
+-   **Backend**: Python, Flask
+-   **AI/LLM**: Relevance AI (Agentic Reasoning)
+-   **Data**: OpenWeatherMap API (Weather, Air Pollution, Geocoding)
+-   **Frontend**: HTML5, CSS3 (Glassmorphism), JavaScript (ES6+)
+-   **Visualization**: Chart.js (Graphs), Leaflet.js (Maps)
+-   **Deployment**: Vercel Ready
 
+## 👥 Team Tetrabytes
+- Arav Arun
+- Harshad Saha
+- Asmit Samanta
+- Faizaan Farooqui
 
-## 👥 Team
-
-Built with ❤️ by team TetraBytes for Mumbai Hacks 2025.
-
+Built with ❤️ by **Team Tetrabytes** for **Mumbai Hacks 2025**.
