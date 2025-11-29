@@ -558,9 +558,48 @@ input:checked + .slider:before {
 
 /* Footer */
 footer {
-    margin-top: 3rem;
-    text-align: center;
-    color: rgba(255, 255, 255, 0.6);
-    font-size: 0.9rem;
-    padding-bottom: 1rem;
+    margin-top: 4rem;
+    padding-bottom: 2rem;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.footer-content {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1rem;
+    font-weight: 500;
+    background: rgba(2, 6, 23, 0.6);
+    padding: 0.8rem 2rem;
+    border-radius: 100px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    transition: transform 0.3s, border-color 0.3s;
+}
+
+.footer-content:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(2, 6, 23, 0.8);
+}
+
+.footer-content a {
+    color: #fff;
+    text-decoration: none;
+    transition: color 0.2s;
+    font-weight: 600;
+}
+
+.footer-content a:hover {
+    color: var(--accent);
+}
+
+.footer-logo {
+    height: 1.4em; /* Slightly larger than text */
+    width: auto;
+    display: block;
+    margin-bottom: -2px; /* Optical alignment */
 }
