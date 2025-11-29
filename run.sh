@@ -15,7 +15,7 @@ if [ ! -f .env ]; then
 fi
 
 # Check if virtual environment exists
-if [ ! -d "venv" ] && [ ! -d ".venv" ]; then
+if [ ! -d "venv" ]; then
     echo "📦 Creating virtual environment..."
     python3 -m venv venv
     echo "✅ Virtual environment created"
@@ -23,11 +23,7 @@ if [ ! -d "venv" ] && [ ! -d ".venv" ]; then
 fi
 
 # Activate virtual environment
-if [ -d "venv" ]; then
-    source venv/bin/activate
-elif [ -d ".venv" ]; then
-    source .venv/bin/activate
-fi
+source venv/bin/activate
 
 # Install dependencies
 echo "📥 Installing dependencies..."
@@ -37,5 +33,5 @@ echo ""
 echo "🚀 Starting Flask app..."
 echo ""
 
-python app.py
+python backend/app.py
 

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BreatheAI - Agentic Air Quality</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>BreatheAI</h1>
+            <p class="subtitle">Clarity in every breath.</p>
+        </header>
+
+        <div class="location-controls">
+            <div class="search-container">
+                <select id="country-select">
+                    <option value="">Loading...</option>
+                </select>
+                <input type="text" id="city-input" placeholder="Enter City Name (e.g. London)">
+                <button onclick="searchLocation()">🔍 Find</button>
+                
+                <div id="search-results" class="search-results"></div>
+            </div>
+            
+            <div class="location-sub-controls">
+                <span class="divider">OR</span>
+                <button class="secondary" onclick="getLocation()">📍 Use My Location</button>
+            </div>
+        </div>
+
+        <div id="loading" class="loading">
+            🤖 Agents are gathering data and reasoning...
+        </div>
+
+        <div id="dashboard" class="dashboard">
+            
+            <!-- 1. Pollutant Radar (Top Left, 2x2) -->
+            <div class="card card-radar">
+                <div class="card-label">Pollutant Breakdown</div>
+                <div style="flex-grow: 1; position: relative;">
+                    <canvas id="radarChart"></canvas>
+                </div>
+            </div>
+
+            <!-- 2. AQI Gauge (Top Right, 2x1) -->
+            <div class="card card-aqi">
+                <div class="card-label">Air Quality Index</div>
+                <div style="position: relative; height: 100%; display: flex; justify-content: center; align-items: center;">
+                    <canvas id="aqiChart"></canvas>
+                    <div style="position: absolute; text-align: center; top: 60%;">
+                        <div class="card-value" id="aqi-value">--</div>
+                        <div class="card-sub" id="aqi-status">--</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Metrics Chart (Middle Right, 2x1) -->
+            <div class="card card-metrics">
+                <div class="card-label">Environment Metrics</div>
+                <div style="flex-grow: 1;">
+                    <canvas id="metricsChart"></canvas>
+                </div>
+            </div>
+
+            <!-- 4. Small Cards Row -->
+            
+            <!-- Weather -->
+            <div class="card card-small">
+                <div class="card-label">Weather</div>
+                <img id="weather-icon" src="" alt="Icon" style="width: 50px; height: 50px; display: none; margin: 0 auto;">
+                <div class="card-value" id="temp-value" style="font-size: 1.5rem;">--°C</div>
+                <div class="card-sub" id="weather-desc">--</div>
+            </div>
+
+            <!-- Humidity -->
+            <div class="card card-small">
+                <div class="card-label">Humidity</div>
+                <div style="font-size: 2rem;">💧</div>
+                <div class="card-value" id="humidity-value" style="font-size: 1.5rem;">--%</div>
+                <div class="card-sub">Relative</div>
+            </div>
+
+            <!-- Dominant Pollutant -->
+            <div class="card card-small">
+                <div class="card-label">Main Pollutant</div>
+                <div style="font-size: 2rem;">🌫️</div>
+                <div class="card-value" id="dom-pol-value" style="font-size: 1.5rem;">--</div>
+                <div class="card-sub">Highest Conc.</div>
+            </div>
+
+            <!-- Risk Level -->
+            <div class="card card-small">
+                <div class="card-label">Risk Level</div>
+                <div id="risk-icon" style="font-size: 2rem;">--</div>
+                <div class="card-value" id="risk-value" style="font-size: 1.2rem;">--</div>
+                <div class="card-sub">Based on AQI</div>
+            </div>
+
+            <!-- 5. Micro-Zone Map (Full Width) -->
+            <div class="card card-map" style="grid-column: 1 / -1; min-height: 400px;">
+                <div class="card-label">🗺️ Micro-Zone Pollution Map</div>
+                <div id="map" style="width: 100%; height: 100%; border-radius: 16px; z-index: 1;"></div>
+            </div>
+
+            <!-- 6. Health Advice (Full Width) -->
+            <div class="card card-advice">
+                <div class="card-label">🧠 AI Health Assessment</div>
+                <div id="health-content" class="health-content">
+                    Waiting for analysis...
+                </div>
+            </div>
+
+            <!-- 7. Planner Agent (Full Width) -->
+            <div class="card card-planner">
+                <div class="card-label">📋 Daily Health Plan</div>
+                <div style="display: flex; gap: 2rem; margin-bottom: 1rem;">
+                    <div>
+                        <span style="color: var(--text-secondary); font-size: 0.9rem;">Mask Recommendation:</span><br>
+                        <strong id="mask-rec" style="font-size: 1.1rem;">--</strong>
+                    </div>
+                    <div>
+                        <span style="color: var(--text-secondary); font-size: 0.9rem;">Hydration Goal:</span><br>
+                        <strong id="hydration-rec" style="font-size: 1.1rem;">--</strong>
+                    </div>
+                </div>
+                <div class="planner-grid">
+                    <div class="planner-item">
+                        <div class="planner-time">Morning</div>
+                        <ul class="planner-list" id="plan-morning"></ul>
+                    </div>
+                    <div class="planner-item">
+                        <div class="planner-time">Afternoon</div>
+                        <ul class="planner-list" id="plan-afternoon"></ul>
+                    </div>
+                    <div class="planner-item">
+                        <div class="planner-time">Evening</div>
+                        <ul class="planner-list" id="plan-evening"></ul>
+                    </div>
+                </div>
+            </div>
+
+            </div>
+        
+        <footer>
+            A project by Team Tetrabytes at Mumbai Hacks 2025
+        </footer>
+    </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

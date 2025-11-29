@@ -1,0 +1,429 @@
+:root {
+    --glass-bg: rgba(15, 23, 42, 0.6); /* Darker glass for better contrast */
+    --glass-border: rgba(255, 255, 255, 0.15);
+    --text-primary: #ffffff;
+    --text-secondary: #cbd5e1; /* Lighter secondary for better contrast */
+    --accent: #38bdf8; /* Sky blue accent */
+    --card-radius: 24px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    /* Blue Sky & Clouds Pattern */
+    background: 
+        radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.4) 0%, transparent 20%),
+        radial-gradient(circle at 80% 50%, rgba(255, 255, 255, 0.3) 0%, transparent 20%),
+        linear-gradient(135deg, #0288d1 0%, #29b6f6 50%, #b3e5fc 100%);
+    background-attachment: fixed;
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+}
+
+.container {
+    width: 100%;
+    max-width: 1400px; /* Wider container */
+    background: rgba(15, 23, 42, 0.4); /* Subtle dark overlay */
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 32px;
+    border: 1px solid var(--glass-border);
+    padding: 2.5rem;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+}
+
+header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+h1 {
+    font-size: 3.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #ffffff 0%, #e0f2fe 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+p.subtitle {
+    color: #e0f2fe;
+    font-size: 1.2rem;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+/* Search Controls */
+.location-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    width: 100%;
+}
+
+.search-container {
+    display: flex;
+    gap: 0.8rem;
+    width: 100%;
+    max-width: 700px;
+    position: relative;
+}
+
+select, input {
+    padding: 1rem;
+    border-radius: 16px;
+    border: 1px solid var(--glass-border);
+    background: rgba(0, 0, 0, 0.3);
+    color: white;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+select:focus, input:focus {
+    border-color: var(--accent);
+}
+
+select {
+    width: 150px;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1em;
+}
+
+input {
+    flex-grow: 1;
+}
+
+.search-results {
+    width: 100%;
+    max-width: 700px;
+    display: none;
+    flex-direction: column;
+    gap: 0.5rem;
+    background: rgba(15, 23, 42, 0.95);
+    padding: 1rem;
+    border-radius: 16px;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 100;
+    border: 1px solid var(--glass-border);
+    margin-top: 0.5rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.result-item {
+    padding: 0.8rem;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.result-item:hover {
+    background: var(--accent);
+}
+
+button {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    font-size: 1rem;
+    white-space: nowrap;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+}
+
+button.secondary {
+    background: transparent;
+    border: 1px solid var(--glass-border);
+}
+
+button.secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.loading {
+    text-align: center;
+    display: none;
+    margin: 2rem 0;
+    font-size: 1.2rem;
+    color: var(--accent);
+}
+
+/* Bento Grid Dashboard */
+.dashboard {
+    display: none;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: auto auto auto; /* Flexible rows */
+    gap: 1.5rem;
+    width: 100%;
+}
+
+.card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--card-radius);
+    padding: 1.5rem;
+    transition: transform 0.3s;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.card-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+}
+
+.card-value {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.card-sub {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-top: 0.2rem;
+}
+
+/* Specific Card Placements */
+
+/* Pollutant Radar: Top Left, 2x2 */
+.card-radar {
+    grid-column: span 2;
+    grid-row: span 2;
+    min-height: 400px;
+}
+
+/* AQI Gauge: Top Right, 2x1 */
+.card-aqi {
+    grid-column: span 2;
+    min-height: 200px;
+}
+
+/* Metrics Chart: Middle Right, 2x1 */
+.card-metrics {
+    grid-column: span 2;
+    min-height: 200px;
+}
+
+/* Small Cards Row: Bottom, 1x1 each */
+.card-small {
+    grid-column: span 1;
+    min-height: 150px;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Health Advice: Full Width */
+.card-advice {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+    border: 1px solid rgba(102, 126, 234, 0.3);
+}
+
+/* Planner Agent Card */
+.card-planner {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.planner-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.planner-item {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1rem;
+    border-radius: 12px;
+}
+
+.planner-time {
+    font-weight: 700;
+    color: #4ade80; /* Green accent */
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+}
+
+.planner-list {
+    list-style: none;
+    font-size: 1.05rem; /* Increased from 0.9rem */
+    color: var(--text-secondary);
+}
+
+.planner-list li {
+    margin-bottom: 0.3rem;
+    display: flex;
+    align-items: start;
+    gap: 0.5rem;
+}
+
+.planner-list li::before {
+    content: "•";
+    color: #4ade80;
+}
+
+.health-content {
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+.health-content h3 {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    color: var(--accent);
+}
+
+/* Responsive adjustments */
+.location-sub-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    justify-content: center;
+}
+
+.divider {
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+    .dashboard {
+        grid-template-columns: 1fr;
+    }
+    .card-radar, .card-aqi, .card-metrics, .card-small, .card-advice, .card-planner {
+        grid-column: span 1;
+        grid-row: auto;
+    }
+    .planner-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 0.5rem;
+    }
+    
+    .container {
+        padding: 1rem;
+        border-radius: 20px;
+    }
+
+    h1 {
+        font-size: 2rem;
+    }
+
+    .subtitle {
+        font-size: 1rem;
+    }
+
+    .search-container {
+        flex-direction: column;
+    }
+
+    select, input, button {
+        width: 100%;
+    }
+    
+    select {
+        background-position: right 1rem center;
+    }
+
+    .location-controls {
+        gap: 1rem;
+    }
+
+    .location-sub-controls {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    /* Chart Adjustments */
+    .card-radar {
+        min-height: 350px; /* Give radar more height on mobile */
+    }
+
+    .card-aqi, .card-metrics {
+        min-height: 250px; /* Ensure gauges/charts aren't squashed */
+    }
+
+    .card {
+        padding: 1rem;
+    }
+
+    .card-value {
+        font-size: 1.5rem;
+    }
+
+    .card-label {
+        font-size: 0.75rem;
+    }
+
+    /* Text Output Adjustments */
+    .planner-list {
+        font-size: 0.95rem;
+    }
+
+    .health-content {
+        font-size: 0.95rem;
+    }
+}
+
+/* AQI Color classes */
+.aqi-good { color: #4ade80; }
+.aqi-moderate { color: #fbbf24; }
+.aqi-unhealthy { color: #fb923c; }
+.aqi-hazardous { color: #ef4444; }
+
+/* Footer */
+footer {
+    margin-top: 3rem;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+    padding-bottom: 1rem;
+}
