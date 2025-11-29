@@ -50,6 +50,26 @@
                 </div>
             </div>
 
+            <!-- 2. AQI Gauge (Top Right, 2x1) -->
+            <div class="card card-aqi">
+                <div class="card-label">Air Quality Index</div>
+                <div style="position: relative; height: 100%; display: flex; justify-content: center; align-items: center;">
+                    <canvas id="aqiChart"></canvas>
+                    <div style="position: absolute; text-align: center; top: 60%;">
+                        <div class="card-value" id="aqi-value">--</div>
+                        <div class="card-sub" id="aqi-status">--</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Metrics Chart (Middle Right, 2x1) -->
+            <div class="card card-metrics">
+                <div class="card-label">Environment Metrics</div>
+                <div style="flex-grow: 1;">
+                    <canvas id="metricsChart"></canvas>
+                </div>
+            </div>
+
             <!-- 4. Weekly Forecast & History (Full Width) -->
             <div class="card card-forecast">
                 <div class="card-header-row">
@@ -129,31 +149,7 @@
                 <div id="map" style="width: 100%; height: 100%; border-radius: 16px; z-index: 1;"></div>
             </div>
 
-            <!-- 6. 12-Hour Forecast & Timing (Full Width) -->
-            <div class="card card-forecast">
-                <div class="card-label">📅 12-Hour Forecast & Best Times</div>
-                <div class="forecast-grid">
-                    <div class="forecast-chart-container">
-                        <canvas id="forecastChart"></canvas>
-                    </div>
-                    <div class="forecast-details">
-                        <div class="forecast-stat">
-                            <div class="stat-icon">🏃</div>
-                            <div class="stat-info">
-                                <h4>Best Time Outside</h4>
-                                <p id="best-time">--</p>
-                            </div>
-                        </div>
-                        <div class="forecast-stat">
-                            <div class="stat-icon">⚠️</div>
-                            <div class="stat-info">
-                                <h4>Worst Exposure</h4>
-                                <p id="worst-time">--</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
 
             <!-- 7. Health Advice (Full Width) -->
             <div class="card card-advice">
