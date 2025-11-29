@@ -33,7 +33,7 @@ def health_reasoning(env: dict) -> str:
         {env.get('pollutants')}
 
         **Task:**
-    Provide a concise daily health plan in markdown.
+    Provide a detailed, scientifically-backed daily health plan in markdown.
     
     **Required Output Format:**
     
@@ -44,13 +44,13 @@ def health_reasoning(env: dict) -> str:
     (Bullet points of main risks)
     
     ### Morning Plan
-    (Specific advice for morning)
+    (Detailed advice for morning. Explain WHY specific actions are needed based on pollutants. e.g., "Avoid outdoor cardio because PM2.5 levels peak at...")
     
     ### Afternoon Plan
-    (Specific advice for afternoon)
+    (Detailed advice for afternoon. Focus on work/school environment and hydration. Include specific scientific tips.)
     
     ### Evening Plan
-    (Specific advice for evening)
+    (Detailed advice for evening. Focus on sleep hygiene and indoor air quality. Explain the science of pollution settling at night.)
     """
         
         payload = {

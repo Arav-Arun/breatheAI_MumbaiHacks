@@ -146,9 +146,12 @@ def get_aqi_forecast(lat: float, lon: float) -> list:
             date_str = dt.strftime('%Y-%m-%d')
             day_name = dt.strftime('%a') # Mon, Tue...
             
-            owm_aqi = item['main']['aqi']
-            aqi_map = {1: 40, 2: 80, 3: 120, 4: 180, 5: 250}
-            aqi_val = aqi_map.get(owm_aqi, 100)
+            # Calculate granular AQI from PM2.5
+            pm25 = item['components']['pm2_5']
+            # Simple conversion: PM2.5 * 4 (approximate US AQI scale for lower range)
+            # This gives more variance than the 1-5 scale
+            aqi_val = int(pm25 * 4)
+            if aqi_val < 10: aqi_val = 10 # Minimum baseline
             
             if date_str not in daily_forecast:
                 daily_forecast[date_str] = {"day": day_name, "max_aqi": aqi_val, "date": date_str}
@@ -188,9 +191,10 @@ def get_aqi_history(lat: float, lon: float) -> list:
             date_str = dt.strftime('%Y-%m-%d')
             day_name = dt.strftime('%a')
             
-            owm_aqi = item['main']['aqi']
-            aqi_map = {1: 40, 2: 80, 3: 120, 4: 180, 5: 250}
-            aqi_val = aqi_map.get(owm_aqi, 100)
+            # Calculate granular AQI from PM2.5
+            pm25 = item['components']['pm2_5']
+            aqi_val = int(pm25 * 4)
+            if aqi_val < 10: aqi_val = 10
             
             if date_str not in daily_history:
                 daily_history[date_str] = {"day": day_name, "max_aqi": aqi_val, "date": date_str}
@@ -214,8 +218,11 @@ def get_aqi_history(lat: float, lon: float) -> list:
             day_name = date.strftime('%a')
             date_str = date.strftime('%Y-%m-%d')
             
-            # Simulate AQI (vary slightly to look realistic)
-            aqi = random.randint(50, 180)
+            # Simulate AQI with realistic variance
+            # Base it on a random trend
+            base_aqi = random.randint(80, 150)
+            variance = random.randint(-20, 20)
+            aqi = base_aqi + variance
             
             history.append({
                 "day": day_name,

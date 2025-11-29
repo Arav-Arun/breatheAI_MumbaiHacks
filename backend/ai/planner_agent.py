@@ -107,22 +107,27 @@ def generate_daily_plan(env_data: dict, health_analysis: str | dict) -> dict:
     
     # Try to parse the AI output
     if isinstance(health_analysis, str): # Use health_analysis as the source string
-        health_advice = health_analysis    # Regex to extract sections
-        morning_match = re.search(r'### Morning Plan\s*(.*?)\s*(?=###|$)', health_advice, re.DOTALL | re.IGNORECASE)
-        afternoon_match = re.search(r'### Afternoon Plan\s*(.*?)\s*(?=###|$)', health_advice, re.DOTALL | re.IGNORECASE)
-        evening_match = re.search(r'### Evening Plan\s*(.*?)\s*(?=###|$)', health_advice, re.DOTALL | re.IGNORECASE)
+    # Regex to extract sections
+    morning_match = re.search(r'### Morning Plan\s*(.*?)\s*(?=###|$)', health_advice, re.DOTALL | re.IGNORECASE)
+    afternoon_match = re.search(r'### Afternoon Plan\s*(.*?)\s*(?=###|$)', health_advice, re.DOTALL | re.IGNORECASE)
+    evening_match = re.search(r'### Evening Plan\s*(.*?)\s*(?=###|$)', health_advice, re.DOTALL | re.IGNORECASE)
+    
+    def parse_plan_text(text):
+        if not text: return []
+        # Split by newlines, but keep full sentences/paragraphs
+        lines = [line.strip() for line in text.split('\n') if line.strip()]
+        # Remove markdown bullet points but keep the text
+        clean_lines = [line.lstrip("- *").strip() for line in lines]
+        return clean_lines
+
+    if morning_match:
+        morning_plan = parse_plan_text(morning_match.group(1))
         
-        if morning_match:
-            morning_text = morning_match.group(1).strip()
-            morning_plan = [line.strip("- *") for line in morning_text.split('\n') if line.strip()]
-            
-        if afternoon_match:
-            afternoon_text = afternoon_match.group(1).strip()
-            afternoon_plan = [line.strip("- *") for line in afternoon_text.split('\n') if line.strip()]
-            
-        if evening_match:
-            evening_text = evening_match.group(1).strip()
-            evening_plan = [line.strip("- *") for line in evening_text.split('\n') if line.strip()]
+    if afternoon_match:
+        afternoon_plan = parse_plan_text(afternoon_match.group(1))
+        
+    if evening_match:
+        evening_plan = parse_plan_text(evening_match.group(1))
 
     # Fallback to rule-based logic if AI parsing failed or returned empty
     if not morning_plan:
