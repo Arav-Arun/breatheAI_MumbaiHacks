@@ -463,9 +463,21 @@ function analyzeHistory(history) {
 }
 
 function updateForecastChart(forecastData, label) {
-    if (!forecastData || !Array.isArray(forecastData)) return;
-    
     const ctx = document.getElementById('forecastChart').getContext('2d');
+    
+    if (!forecastData || !Array.isArray(forecastData) || forecastData.length === 0) {
+        if (forecastChartInstance) {
+            forecastChartInstance.destroy();
+            forecastChartInstance = null;
+        }
+        // Optional: Draw "No Data" text
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        ctx.font = "14px Inter";
+        ctx.fillStyle = "#94a3b8";
+        ctx.textAlign = "center";
+        ctx.fillText("No data available", ctx.canvas.width / 2, ctx.canvas.height / 2);
+        return;
+    }
     
     // Format labels (Days)
     const labels = forecastData.map(item => item.day);
