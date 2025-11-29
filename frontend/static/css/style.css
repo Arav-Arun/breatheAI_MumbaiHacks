@@ -15,7 +15,7 @@
 }
 
 body {
-    /* Blue Sky & Clouds Pattern */
+    /* Blue Sky & Clouds Pattern (Default for Dashboard) */
     background: 
         radial-gradient(circle at 20% 20%, rgba(186, 230, 253, 0.05) 0%, transparent 20%),
         radial-gradient(circle at 80% 50%, rgba(186, 230, 253, 0.05) 0%, transparent 20%),
@@ -27,6 +27,73 @@ body {
     flex-direction: column;
     align-items: center;
     padding: 2rem;
+    transition: background 0.5s ease;
+}
+
+/* Landing Mode Styles */
+body.landing-mode {
+    justify-content: center;
+    /* Cool Pattern Background: Dark grid with subtle glow */
+    background-color: #020617;
+    background-image: 
+        radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.15) 0%, transparent 60%),
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 100% 100%, 50px 50px, 50px 50px;
+    background-position: center, center, center;
+}
+
+body.landing-mode .container {
+    background: transparent;
+    box-shadow: none;
+    border: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    padding: 0;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+body.landing-mode footer {
+    margin-top: 0;
+    padding-bottom: 0;
+    position: relative;
+    z-index: 10;
+}
+
+body.landing-mode #landing-content {
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 32px;
+    border: 1px solid var(--glass-border);
+    padding: 4rem 3rem 3rem 3rem; /* Reduced bottom padding */
+    box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+    width: 100%;
+    max-width: 800px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: fadeIn 0.8s ease-out;
+}
+
+body.landing-mode .location-controls {
+    margin-bottom: 0;
+}
+
+/* Ensure landing content doesn't interfere when not in landing mode */
+#landing-content {
+    width: 100%;
+    transition: all 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .container {
@@ -474,12 +541,37 @@ input:checked + .slider:before {
 
 @media (max-width: 600px) {
     body {
-        padding: 0.5rem;
+        padding: 0; /* Remove body padding on mobile */
     }
     
     .container {
         padding: 1rem;
-        border-radius: 20px;
+        border-radius: 0; /* Full width on mobile */
+        border: none;
+        background: transparent; /* Cleaner look */
+        box-shadow: none;
+    }
+
+    /* Landing Mode Mobile Optimizations */
+    body.landing-mode .container {
+        padding: 1rem;
+        justify-content: center;
+        min-height: 100vh; /* Ensure full height */
+    }
+
+    body.landing-mode #landing-content {
+        padding: 2rem 1.5rem 1.5rem 1.5rem; /* Tighter padding on mobile */
+        width: 100%;
+        border-radius: 24px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3); /* Softer shadow */
+    }
+
+    body.landing-mode .location-controls {
+        margin-bottom: 0;
+    }
+
+    body.landing-mode h1 {
+        font-size: 2.5rem; /* Smaller title */
     }
 
     .dashboard {
@@ -552,14 +644,20 @@ input:checked + .slider:before {
     /* Footer Mobile Optimization */
     footer {
         margin-top: 2rem;
+        padding-bottom: 2rem; /* Ensure space at bottom */
+    }
+
+    body.landing-mode footer {
+        margin-top: 0;
         padding-bottom: 1rem;
     }
 
     .footer-content {
-        padding: 0.5rem 1rem;
+        padding: 0.6rem 1.2rem;
         font-size: 0.8rem;
         gap: 0.5rem;
-        width: 90%; /* Ensure it doesn't touch edges */
+        width: auto; /* Allow auto width */
+        max-width: 90%;
         justify-content: center;
         flex-wrap: wrap; /* Allow wrapping if needed */
     }
@@ -621,4 +719,21 @@ footer {
     width: auto;
     display: block;
     margin-bottom: -2px; /* Optical alignment */
+}
+
+.github-link {
+    display: flex;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.7);
+    transition: color 0.2s, transform 0.2s;
+}
+
+.github-link:hover {
+    color: var(--accent);
+    transform: scale(1.1);
+}
+
+.github-link svg {
+    width: 1.2em;
+    height: 1.2em;
 }

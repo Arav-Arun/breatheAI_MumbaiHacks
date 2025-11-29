@@ -104,6 +104,7 @@ function selectLocation(loc) {
 }
 
 function showLoading() {
+    document.body.classList.remove('landing-mode');
     document.getElementById('loading').style.display = 'block';
     document.getElementById('dashboard').style.display = 'none';
 }
