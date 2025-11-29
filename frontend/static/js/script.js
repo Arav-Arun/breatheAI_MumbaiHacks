@@ -403,9 +403,84 @@ function updateDashboard(data) {
     } else {
         document.getElementById('detected-location').innerText = "";
     }
+    
+    // Update Forecast
+    if (data.forecast && data.forecast_analysis) {
+        updateForecastChart(data.forecast);
+        document.getElementById('best-time').innerText = data.forecast_analysis.best_time || "N/A";
+        document.getElementById('worst-time').innerText = data.forecast_analysis.worst_time || "N/A";
+    }
 }
 
 let mapInstance = null;
+let forecastChartInstance = null;
+
+function updateForecastChart(forecastData) {
+    const ctx = document.getElementById('forecastChart').getContext('2d');
+    
+    // Format labels (hours)
+    const labels = forecastData.map(item => {
+        const date = new Date(item.time * 1000);
+        return date.getHours() + ':00';
+    });
+    
+    const dataPoints = forecastData.map(item => item.aqi);
+    
+    // Determine color based on AQI
+    const colors = dataPoints.map(aqi => {
+        if (aqi > 300) return '#ef4444';
+        if (aqi > 200) return '#7e22ce';
+        if (aqi > 150) return '#ef4444';
+        if (aqi > 100) return '#f97316';
+        if (aqi > 50) return '#eab308';
+        return '#4ade80';
+    });
+
+    if (forecastChartInstance) {
+        forecastChartInstance.destroy();
+    }
+
+    forecastChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Predicted AQI',
+                data: dataPoints,
+                backgroundColor: colors,
+                borderRadius: 6,
+                barThickness: 12
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                    titleColor: '#fff',
+                    bodyColor: '#cbd5e1',
+                    borderColor: 'rgba(255,255,255,0.1)',
+                    borderWidth: 1
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                    ticks: { color: '#94a3b8' }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { color: '#94a3b8' }
+                }
+            }
+        }
+    });
+}
 
 function updateMap(lat, lon, microData) {
     // Ensure the map container is visible before initializing

@@ -64,13 +64,15 @@ def get_env(lat, lon):
     2. Uses AI to reason about health risks.
     3. Generates a daily plan based on the data.
     4. Generates Micro-Zone AQI map data.
+    5. Generates 12-hour AQI Forecast.
     """
     try:
         # Step 1: Get raw environment data (Weather + Air Quality)
         env_data = get_environment_data(lat, lon)
         
-        # Step 1.5: Get Micro-Zone Data
+        # Step 1.5: Get Micro-Zone Data & Forecast
         micro_data = get_micro_aqi(lat, lon)
+        forecast_data = get_aqi_forecast(lat, lon)
         
     except Exception as e:
         # If something goes wrong, return a 500 error
@@ -85,13 +87,17 @@ def get_env(lat, lon):
     # Step 3: Generate a Daily Plan (Actionable Steps)
     try:
         daily_plan = generate_daily_plan(env_data, health)
+        forecast_analysis = analyze_forecast(forecast_data)
     except Exception as e:
         daily_plan = {"error": f"Planner error: {str(e)}"}
+        forecast_analysis = {}
 
     # Combine everything into one response
     response = {
         "environment": env_data,
         "micro_aqi": micro_data,
+        "forecast": forecast_data,
+        "forecast_analysis": forecast_analysis,
         "health_advice": health,
         "daily_plan": daily_plan
     }

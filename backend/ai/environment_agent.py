@@ -105,3 +105,31 @@ def get_micro_aqi(lat: float, lon: float) -> list:
         })
     
     return micro_zones
+
+def get_aqi_forecast(lat: float, lon: float) -> list:
+    """
+    Fetches 12-hour AQI forecast using OpenWeatherMap Air Pollution API.
+    """
+    try:
+        url = f"http://api.openweathermap.org/data/2.5/air_pollution/forecast?lat={lat}&lon={lon}&appid={OPENWEATHER_API_KEY}"
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
+        
+        # Extract next 12 hours (data is hourly)
+        forecast = []
+        for item in data.get('list', [])[:12]:
+            # OpenWeatherMap AQI is 1-5 scale. We map it roughly to standard AQI for visualization
+            # 1=Good(50), 2=Fair(100), 3=Moderate(150), 4=Poor(200), 5=Very Poor(300)
+            owm_aqi = item['main']['aqi']
+            aqi_map = {1: 40, 2: 80, 3: 120, 4: 180, 5: 250}
+            
+            forecast.append({
+                "time": item['dt'], # Unix timestamp
+                "aqi": aqi_map.get(owm_aqi, 100),
+                "raw_aqi": owm_aqi
+            })
+            
+        return forecast
+    except requests.RequestException:
+        return []
