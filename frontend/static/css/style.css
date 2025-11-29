@@ -653,19 +653,23 @@ input:checked + .slider:before {
     }
 
     .footer-content {
-        padding: 0.5rem 1rem;
-        font-size: 0.75rem; /* Smaller font to fit more */
-        gap: 0.4rem;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.7rem; /* Slightly smaller */
+        gap: 0.3rem; /* Tighter gap */
         width: 95%;
         max-width: 100%;
         justify-content: center;
         flex-wrap: wrap;
-        line-height: 1.5; /* Better line height for wrapped text */
+        line-height: 1.4;
     }
 
     .footer-logo {
-        height: 1.4em; /* Keep it proportional */
-        margin-bottom: -3px; /* Better alignment */
+        height: 1.1em; /* Reduced size */
+        margin-bottom: -2px;
+    }
+
+    .footer-separator {
+        margin: 0 0.2rem; /* Tighter separator spacing */
     }
 }
 
@@ -721,6 +725,11 @@ footer {
     width: auto;
     display: block;
     margin-bottom: -2px; /* Optical alignment */
+}
+
+.footer-separator {
+    margin: 0 0.5rem;
+    opacity: 0.3;
 }
 
 .github-link {
