@@ -3,7 +3,7 @@ A comprehensive agentic AI system designed to help individuals navigate India's 
 
 ##Pitch Video : 
 - https://drive.google.com/file/d/1dmzuqZSBQg4ZtEj9O7A5WwrxgPhQlMsr/view?usp=sharing
-## 🎯 Features
+### 🎯 Features
 
 ### Core Agentic Architecture
 
