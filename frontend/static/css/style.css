@@ -17,8 +17,8 @@
 body {
     /* Blue Sky & Clouds Pattern */
     background: 
-        radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.4) 0%, transparent 20%),
-        radial-gradient(circle at 80% 50%, rgba(255, 255, 255, 0.3) 0%, transparent 20%),
+        radial-gradient(circle at 20% 20%, rgba(186, 230, 253, 0.4) 0%, transparent 20%),
+        radial-gradient(circle at 80% 50%, rgba(186, 230, 253, 0.3) 0%, transparent 20%),
         linear-gradient(135deg, #0288d1 0%, #29b6f6 50%, #b3e5fc 100%);
     background-attachment: fixed;
     color: var(--text-primary);
@@ -49,7 +49,7 @@ header {
 h1 {
     font-size: 3.5rem;
     font-weight: 800;
-    background: linear-gradient(135deg, #ffffff 0%, #e0f2fe 100%);
+    background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -131,7 +131,7 @@ input {
 .result-item {
     padding: 0.8rem;
     border-radius: 12px;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(56, 189, 248, 0.05);
     cursor: pointer;
     transition: background 0.2s;
 }
@@ -322,7 +322,7 @@ input:checked + .slider:before {
 }
 
 .forecast-stat {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(56, 189, 248, 0.05);
     padding: 1rem;
     border-radius: 16px;
     display: flex;
@@ -404,12 +404,12 @@ input:checked + .slider:before {
 .planner-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
+    gap: 1.5rem;
     margin-top: 1rem;
 }
 
 .planner-item {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(56, 189, 248, 0.05);
     padding: 1rem;
     border-radius: 12px;
 }
@@ -486,7 +486,7 @@ input:checked + .slider:before {
     }
     
     .container {
-        padding: 1rem;
+        padding: 1.25rem;
         border-radius: 20px;
     }
 

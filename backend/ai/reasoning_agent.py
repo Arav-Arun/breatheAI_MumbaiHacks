@@ -44,13 +44,23 @@ def health_reasoning(env: dict) -> str:
     (Bullet points of main risks)
     
     ### Morning Plan
-    (Detailed advice for morning. Explain WHY specific actions are needed based on pollutants. e.g., "Avoid outdoor cardio because PM2.5 levels peak at...")
+    (Provide a comprehensive guide for the morning. Include:
+    - **Activity**: Specific recommendations (exact times, types of exercise).
+    - **Science**: Explain the "Why" (e.g., "PM2.5 levels are highest at dawn due to thermal inversion").
+    - **Diet/Protection**: Specific dietary tips (e.g., antioxidants) or protective measures.
+    Aim for 3-4 detailed points.)
     
     ### Afternoon Plan
-    (Detailed advice for afternoon. Focus on work/school environment and hydration. Include specific scientific tips.)
+    (Provide a comprehensive guide for the afternoon. Include:
+    - **Work/School**: How to manage exposure during commute or work.
+    - **Physiology**: Explain how hydration helps clear toxins.
+    - **Actionable Steps**: Specific steps to improve indoor air quality.)
     
     ### Evening Plan
-    (Detailed advice for evening. Focus on sleep hygiene and indoor air quality. Explain the science of pollution settling at night.)
+    (Provide a comprehensive guide for the evening. Include:
+    - **Sleep Hygiene**: How pollution affects sleep and what to do.
+    - **Ventilation**: Precise advice on when/if to open windows based on night-time pollution settling.
+    - **Recovery**: Evening routines to help the lungs recover.)
     """
         
         payload = {
