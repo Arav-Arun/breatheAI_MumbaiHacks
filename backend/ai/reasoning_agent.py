@@ -22,9 +22,17 @@ def health_reasoning(env: dict) -> str:
             "Content-Type": "application/json"
         }
         
+        # Determine Risk Level for Context
+        aqi = env.get('aqi', 0)
+        risk_level = "Good"
+        if aqi > 300: risk_level = "Hazardous"
+        elif aqi > 200: risk_level = "Very Unhealthy"
+        elif aqi > 150: risk_level = "Unhealthy"
+        elif aqi > 100: risk_level = "Moderate"
+        
         prompt = f"""
         **Environmental Data:**
-        - AQI: {env.get('aqi')}
+        - AQI: {aqi} (Risk Level: {risk_level})
         - Temperature: {env.get('temperature')}°C
         - Humidity: {env.get('humidity')}%
         - Condition: {env.get('description')}
@@ -34,6 +42,12 @@ def health_reasoning(env: dict) -> str:
 
     **Task:**
     Provide a detailed, scientifically-backed daily health plan in markdown.
+    
+    **CRITICAL INSTRUCTION:**
+    Your advice MUST be directly derived from the AQI of {aqi} ({risk_level}).
+    - IF AQI > 150: You MUST strictly forbid outdoor strenuous exercise and recommend N95 masks.
+    - IF AQI < 100: You MUST encourage ventilation and outdoor activities.
+    - Do NOT provide generic advice that applies to all conditions. Tailor it specifically to {risk_level} air quality.
 
     **Required Output Format:**
 
