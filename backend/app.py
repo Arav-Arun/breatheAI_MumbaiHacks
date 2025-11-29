@@ -1,6 +1,11 @@
 from flask import Flask, render_template, jsonify, request
 from dotenv import load_dotenv
 import os
+import sys
+
+# Add the current directory (backend) to sys.path to ensure imports work on Vercel
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 # Import our custom agent modules
 # Note: Since we are running this from the backend directory (or as a package), 
 # and 'ai' is in the same directory, we import directly from 'ai'.
