@@ -50,23 +50,42 @@
                 </div>
             </div>
 
-            <!-- 2. AQI Gauge (Top Right, 2x1) -->
-            <div class="card card-aqi">
-                <div class="card-label">Air Quality Index</div>
-                <div style="position: relative; height: 100%; display: flex; justify-content: center; align-items: center;">
-                    <canvas id="aqiChart"></canvas>
-                    <div style="position: absolute; text-align: center; top: 60%;">
-                        <div class="card-value" id="aqi-value">--</div>
-                        <div class="card-sub" id="aqi-status">--</div>
+            <!-- 4. Weekly Forecast & History (Full Width) -->
+            <div class="card card-forecast">
+                <div class="card-header-row">
+                    <div class="card-label">📅 Air Quality Trends</div>
+                    <div class="toggle-container">
+                        <span class="toggle-label">History</span>
+                        <label class="switch">
+                            <input type="checkbox" id="forecast-toggle" checked onchange="toggleForecast()">
+                            <span class="slider round"></span>
+                        </label>
+                        <span class="toggle-label active">Forecast</span>
                     </div>
                 </div>
-            </div>
-
-            <!-- 3. Metrics Chart (Middle Right, 2x1) -->
-            <div class="card card-metrics">
-                <div class="card-label">Environment Metrics</div>
-                <div style="flex-grow: 1;">
-                    <canvas id="metricsChart"></canvas>
+                
+                <div class="forecast-grid">
+                    <div class="forecast-chart-container">
+                        <canvas id="forecastChart"></canvas>
+                    </div>
+                    <div class="forecast-details">
+                        <div class="forecast-stat">
+                            <div class="stat-icon">📈</div>
+                            <div class="stat-info">
+                                <h4>Highest AQI</h4>
+                                <p id="worst-day">--</p>
+                                <small id="worst-aqi-val">--</small>
+                            </div>
+                        </div>
+                        <div class="forecast-stat">
+                            <div class="stat-icon">📉</div>
+                            <div class="stat-info">
+                                <h4>Lowest AQI</h4>
+                                <p id="best-day">--</p>
+                                <small id="best-aqi-val">--</small>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 

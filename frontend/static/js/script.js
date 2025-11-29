@@ -404,27 +404,59 @@ function updateDashboard(data) {
         document.getElementById('detected-location').innerText = "";
     }
     
-    // Update Forecast
-    if (data.forecast && data.forecast_analysis) {
-        updateForecastChart(data.forecast);
-        document.getElementById('best-time').innerText = data.forecast_analysis.best_time || "N/A";
-        document.getElementById('worst-time').innerText = data.forecast_analysis.worst_time || "N/A";
+    // Update Forecast & History
+    if (data.forecast && data.history) {
+        window.forecastData = data.forecast;
+        window.historyData = data.history;
+        window.forecastAnalysis = data.forecast_analysis;
+        
+        // Initial render (Forecast)
+        toggleForecast();
     }
 }
 
 let mapInstance = null;
 let forecastChartInstance = null;
 
-function updateForecastChart(forecastData) {
+function toggleForecast() {
+    const isForecast = document.getElementById('forecast-toggle').checked;
+    const data = isForecast ? window.forecastData : window.historyData;
+    const analysis = isForecast ? window.forecastAnalysis : analyzeHistory(window.historyData);
+    
+    updateForecastChart(data, isForecast ? 'Predicted AQI (Next 5 Days)' : 'Historical AQI (Last 7 Days)');
+    
+    // Update stats
+    if (isForecast) {
+        document.getElementById('worst-day').innerText = analysis.worst_day || "--";
+        document.getElementById('worst-aqi-val').innerText = analysis.worst_aqi ? `AQI: ${analysis.worst_aqi}` : "";
+        document.getElementById('best-day').innerText = analysis.best_day || "--";
+        document.getElementById('best-aqi-val').innerText = analysis.best_aqi ? `AQI: ${analysis.best_aqi}` : "";
+    } else {
+        document.getElementById('worst-day').innerText = analysis.worst_day || "--";
+        document.getElementById('worst-aqi-val').innerText = analysis.worst_aqi ? `AQI: ${analysis.worst_aqi}` : "";
+        document.getElementById('best-day').innerText = analysis.best_day || "--";
+        document.getElementById('best-aqi-val').innerText = analysis.best_aqi ? `AQI: ${analysis.best_aqi}` : "";
+    }
+}
+
+function analyzeHistory(history) {
+    if (!history || history.length === 0) return {};
+    const maxItem = history.reduce((prev, current) => (prev.max_aqi > current.max_aqi) ? prev : current);
+    const minItem = history.reduce((prev, current) => (prev.max_aqi < current.max_aqi) ? prev : current);
+    return {
+        worst_day: `${maxItem.day} (${maxItem.date})`,
+        worst_aqi: maxItem.max_aqi,
+        best_day: `${minItem.day} (${minItem.date})`,
+        best_aqi: minItem.max_aqi
+    };
+}
+
+function updateForecastChart(forecastData, label) {
     const ctx = document.getElementById('forecastChart').getContext('2d');
     
-    // Format labels (hours)
-    const labels = forecastData.map(item => {
-        const date = new Date(item.time * 1000);
-        return date.getHours() + ':00';
-    });
-    
-    const dataPoints = forecastData.map(item => item.aqi);
+    // Format labels (Days)
+    const labels = forecastData.map(item => item.day);
+    const dataPoints = forecastData.map(item => item.max_aqi);
     
     // Determine color based on AQI
     const colors = dataPoints.map(aqi => {
@@ -445,18 +477,21 @@ function updateForecastChart(forecastData) {
         data: {
             labels: labels,
             datasets: [{
-                label: 'Predicted AQI',
+                label: label,
                 data: dataPoints,
                 backgroundColor: colors,
                 borderRadius: 6,
-                barThickness: 12
+                barThickness: 20
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: { display: false },
+                legend: { 
+                    display: true,
+                    labels: { color: '#cbd5e1' }
+                },
                 tooltip: {
                     mode: 'index',
                     intersect: false,

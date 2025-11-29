@@ -108,7 +108,8 @@ def get_micro_aqi(lat: float, lon: float) -> list:
 
 def get_aqi_forecast(lat: float, lon: float) -> list:
     """
-    Fetches 12-hour AQI forecast using OpenWeatherMap Air Pollution API.
+    Fetches 5-day AQI forecast using OpenWeatherMap Air Pollution API.
+    Aggregates hourly data to daily max AQI.
     """
     try:
         url = f"http://api.openweathermap.org/data/2.5/air_pollution/forecast?lat={lat}&lon={lon}&appid={OPENWEATHER_API_KEY}"
@@ -116,20 +117,52 @@ def get_aqi_forecast(lat: float, lon: float) -> list:
         response.raise_for_status()
         data = response.json()
         
-        # Extract next 12 hours (data is hourly)
-        forecast = []
-        for item in data.get('list', [])[:12]:
-            # OpenWeatherMap AQI is 1-5 scale. We map it roughly to standard AQI for visualization
-            # 1=Good(50), 2=Fair(100), 3=Moderate(150), 4=Poor(200), 5=Very Poor(300)
+        # Process hourly data into daily max AQI
+        daily_forecast = {}
+        from datetime import datetime
+        
+        for item in data.get('list', []):
+            dt = datetime.fromtimestamp(item['dt'])
+            date_str = dt.strftime('%Y-%m-%d')
+            day_name = dt.strftime('%a') # Mon, Tue...
+            
             owm_aqi = item['main']['aqi']
             aqi_map = {1: 40, 2: 80, 3: 120, 4: 180, 5: 250}
+            aqi_val = aqi_map.get(owm_aqi, 100)
             
-            forecast.append({
-                "time": item['dt'], # Unix timestamp
-                "aqi": aqi_map.get(owm_aqi, 100),
-                "raw_aqi": owm_aqi
-            })
-            
-        return forecast
+            if date_str not in daily_forecast:
+                daily_forecast[date_str] = {"day": day_name, "max_aqi": aqi_val, "date": date_str}
+            else:
+                daily_forecast[date_str]["max_aqi"] = max(daily_forecast[date_str]["max_aqi"], aqi_val)
+        
+        # Return first 5 days
+        return list(daily_forecast.values())[:5]
     except requests.RequestException:
         return []
+
+def get_aqi_history(lat: float, lon: float) -> list:
+    """
+    Simulates 7-day AQI history.
+    In a real app, this would use the History API (paid) or a database.
+    """
+    import random
+    from datetime import datetime, timedelta
+    
+    history = []
+    today = datetime.now()
+    
+    for i in range(7, 0, -1):
+        date = today - timedelta(days=i)
+        day_name = date.strftime('%a')
+        date_str = date.strftime('%Y-%m-%d')
+        
+        # Simulate AQI
+        aqi = random.randint(50, 250)
+        
+        history.append({
+            "day": day_name,
+            "max_aqi": aqi,
+            "date": date_str
+        })
+        
+    return history

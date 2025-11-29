@@ -9,7 +9,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 # Import our custom agent modules
 # Note: Since we are running this from the backend directory (or as a package), 
 # and 'ai' is in the same directory, we import directly from 'ai'.
-from ai.environment_agent import get_environment_data, get_coordinates, get_micro_aqi
+from ai.environment_agent import get_environment_data, get_coordinates, get_micro_aqi, get_aqi_forecast
 from ai.reasoning_agent import health_reasoning
 from ai.planner_agent import generate_daily_plan
 
@@ -64,7 +64,7 @@ def get_env(lat, lon):
     2. Uses AI to reason about health risks.
     3. Generates a daily plan based on the data.
     4. Generates Micro-Zone AQI map data.
-    5. Generates 12-hour AQI Forecast.
+    5. Generates 5-day AQI Forecast & History.
     """
     try:
         # Step 1: Get raw environment data (Weather + Air Quality)
@@ -73,6 +73,7 @@ def get_env(lat, lon):
         # Step 1.5: Get Micro-Zone Data & Forecast
         micro_data = get_micro_aqi(lat, lon)
         forecast_data = get_aqi_forecast(lat, lon)
+        history_data = get_aqi_history(lat, lon)
         
     except Exception as e:
         # If something goes wrong, return a 500 error
@@ -97,6 +98,7 @@ def get_env(lat, lon):
         "environment": env_data,
         "micro_aqi": micro_data,
         "forecast": forecast_data,
+        "history": history_data,
         "forecast_analysis": forecast_analysis,
         "health_advice": health,
         "daily_plan": daily_plan
