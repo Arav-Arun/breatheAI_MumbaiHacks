@@ -9,7 +9,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 # Import our custom agent modules
 # Note: Since we are running this from the backend directory (or as a package), 
 # and 'ai' is in the same directory, we import directly from 'ai'.
-from ai.environment_agent import get_environment_data, get_coordinates, get_micro_aqi, get_aqi_forecast
+from ai.environment_agent import get_environment_data, get_coordinates, get_micro_aqi, get_aqi_forecast, get_aqi_history
 from ai.reasoning_agent import health_reasoning
 from ai.planner_agent import generate_daily_plan
 
