@@ -64,7 +64,11 @@ class PlannerAgent:
         
         # Inhaler reminders
         inhaler_reminders = []
-        if risk_level in ['high', 'severe'] or health_analysis.get('breathlessness_risk', 0) > 6:
+        breathlessness_risk = 0
+        if isinstance(health_analysis, dict):
+            breathlessness_risk = health_analysis.get('breathlessness_risk', 0)
+
+        if risk_level in ['high', 'severe'] or breathlessness_risk > 6:
             inhaler_reminders = [
                 "Morning: Use preventive inhaler before going out",
                 "Evening: Keep rescue inhaler accessible"

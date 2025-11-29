@@ -21,10 +21,6 @@ def get_environment_data(lat, lon):
 
     weather = requests.get(weather_url).json()
     aqi = requests.get(aqi_url, headers={"X-Api-Key": AQI_API_KEY}).json()
-
-    # Handle potential API errors or missing keys gracefully if needed, 
-    # but for now following the user's snippet structure.
-    # Note: api-ninjas returns a dict, openweather returns a dict.
     
     data = {
         "temperature": weather.get("main", {}).get("temp"),

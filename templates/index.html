@@ -596,7 +596,19 @@
             
             try {
                 const response = await fetch(`/api/geocode?city=${encodeURIComponent(city)}&country=${country}`);
-                const data = await response.json();
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Server Error ${response.status}: ${errorText.substring(0, 100)}`);
+                }
+
+                let data;
+                const text = await response.text();
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    throw new Error(`Invalid JSON response: ${text.substring(0, 100)}...`);
+                }
 
                 hideLoading();
 
@@ -663,7 +675,19 @@
 
             try {
                 const response = await fetch(`/api/environment/${lat}/${lon}`);
-                const data = await response.json();
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Server Error ${response.status}: ${errorText.substring(0, 100)}`);
+                }
+
+                let data;
+                const text = await response.text();
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    throw new Error(`Invalid JSON response: ${text.substring(0, 100)}...`);
+                }
 
                 if (data.error) {
                     alert("API Error: " + data.error);

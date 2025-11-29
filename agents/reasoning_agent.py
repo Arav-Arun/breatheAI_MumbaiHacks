@@ -11,8 +11,7 @@ RELEVANCE_API_KEY = os.getenv("RELEVANCE_API_KEY", "sk-NDExNTgyOGItZTI1My00NGEzL
 RELEVANCE_REGION = os.getenv("RELEVANCE_REGION", "d7b62b")
 TOOL_ID = "92f0d1e5-c44d-41c5-a05a-ae75c58941a2"
 
-def health_reasoning(env, api_key=None):
-    # Note: api_key arg is kept for backward compatibility but ignored in favor of env vars for Relevance
+def health_reasoning(env):
     
     try:
         # We use raw requests because the SDK trigger method was missing/unreliable in exploration
