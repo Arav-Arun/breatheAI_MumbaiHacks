@@ -653,17 +653,19 @@ input:checked + .slider:before {
     }
 
     .footer-content {
-        padding: 0.6rem 1.2rem;
-        font-size: 0.8rem;
-        gap: 0.5rem;
-        width: auto; /* Allow auto width */
-        max-width: 90%;
+        padding: 0.5rem 1rem;
+        font-size: 0.75rem; /* Smaller font to fit more */
+        gap: 0.4rem;
+        width: 95%;
+        max-width: 100%;
         justify-content: center;
-        flex-wrap: wrap; /* Allow wrapping if needed */
+        flex-wrap: wrap;
+        line-height: 1.5; /* Better line height for wrapped text */
     }
 
     .footer-logo {
-        height: 1.2em; /* Smaller logo */
+        height: 1.4em; /* Keep it proportional */
+        margin-bottom: -3px; /* Better alignment */
     }
 }
 
