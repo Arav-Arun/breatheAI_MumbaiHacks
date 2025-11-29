@@ -2,7 +2,17 @@
 
 A comprehensive agentic AI system designed to help individuals navigate India's severe air pollution problem through intelligent, autonomous agents that collect data, reason about health impacts, and plan personalized actions.
 
-![BreatheAI Dashboard](frontend/static/assets/favicon.jpg)
+
+## 📸 Screenshots
+
+| Dashboard | Health Assessment |
+|:---:|:---:|
+| ![Dashboard](assets/screenshot1.jpg) | ![Health Assessment](assets/screenshot2.jpg) |
+
+| Pollution Map | Search |
+|:---:|:---:|
+| ![Pollution Map](assets/screenshot3.jpg) | ![Search](assets/screenshot4.png) |
+
 
 ## 🎯 Features
 
