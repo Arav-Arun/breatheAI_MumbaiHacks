@@ -27,13 +27,14 @@ def geocode():
 
 @app.route("/api/environment/<lat>/<lon>")
 def get_env(lat, lon):
+    api_key = request.headers.get("X-OpenAI-Key")
     try:
         env_data = get_environment_data(lat, lon)
     except Exception as e:
         return jsonify({"error": f"Environment data error: {str(e)}"}), 500
 
     try:
-        health = health_reasoning(env_data)
+        health = health_reasoning(env_data, api_key)
     except Exception as e:
         health = "Health advice unavailable (Check OpenAI API Key). Data: " + str(env_data)
 
