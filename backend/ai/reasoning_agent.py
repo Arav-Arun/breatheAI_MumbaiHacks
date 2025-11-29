@@ -32,35 +32,41 @@ def health_reasoning(env: dict) -> str:
         **Pollutant Breakdown:**
         {env.get('pollutants')}
 
-        **Task:**
+    **Task:**
     Provide a detailed, scientifically-backed daily health plan in markdown.
-    
+
     **Required Output Format:**
-    
+
     ### Executive Summary
     (One sentence summary)
-    
+
     ### Key Risks
     (Bullet points of main risks)
-    
+
     ### Morning Plan
     (Provide a comprehensive guide for the morning. Include:
     - **Activity**: Specific recommendations (exact times, types of exercise).
-    - **Science**: Explain the "Why" (e.g., "PM2.5 levels are highest at dawn due to thermal inversion").
+    - **Science**: Explain the "Why" with scientific depth (e.g., "PM2.5 levels are highest at dawn due to thermal inversion").
     - **Diet/Protection**: Specific dietary tips (e.g., antioxidants) or protective measures.
-    Aim for 3-4 detailed points.)
-    
+    - **Physiology**: How the body reacts to current pollutants.
+    - **Actionable Steps**: Non-obvious tips.
+    Aim for **5-6 detailed points**.)
+
     ### Afternoon Plan
     (Provide a comprehensive guide for the afternoon. Include:
     - **Work/School**: How to manage exposure during commute or work.
     - **Physiology**: Explain how hydration helps clear toxins.
-    - **Actionable Steps**: Specific steps to improve indoor air quality.)
-    
+    - **Actionable Steps**: Specific steps to improve indoor air quality.
+    - **Mental Health**: Impact of pollution on focus and mood.
+    Aim for **5-6 detailed points**.)
+
     ### Evening Plan
     (Provide a comprehensive guide for the evening. Include:
     - **Sleep Hygiene**: How pollution affects sleep and what to do.
     - **Ventilation**: Precise advice on when/if to open windows based on night-time pollution settling.
-    - **Recovery**: Evening routines to help the lungs recover.)
+    - **Recovery**: Evening routines to help the lungs recover.
+    - **Long-term**: Tips for long-term respiratory health.
+    Aim for **5-6 detailed points**.)
     """
         
         payload = {
