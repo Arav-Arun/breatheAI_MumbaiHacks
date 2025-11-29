@@ -371,13 +371,17 @@ function updateDashboard(data) {
     }
 
     // Planner Agent
-    if (data.daily_plan) {
+    if (data.daily_plan && !data.daily_plan.error) {
         const plan = data.daily_plan;
-        document.getElementById('mask-rec').innerText = plan.mask_level;
-        document.getElementById('hydration-rec').innerText = plan.hydration_ml + " ml";
+        document.getElementById('mask-rec').innerText = plan.mask_level || "--";
+        document.getElementById('hydration-rec').innerText = (plan.hydration_ml ? plan.hydration_ml + " ml" : "--");
 
         const renderList = (id, items) => {
             const ul = document.getElementById(id);
+            if (!items || !Array.isArray(items)) {
+                ul.innerHTML = '<li style="color: #94a3b8; font-style: italic;">No advice available</li>';
+                return;
+            }
             ul.innerHTML = items.map(item => {
                 // Parse Markdown Bold
                 const formattedItem = item.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
@@ -385,9 +389,16 @@ function updateDashboard(data) {
             }).join('');
         };
 
-        renderList('plan-morning', plan.morning_plan);
-        renderList('plan-afternoon', plan.afternoon_plan);
-        renderList('plan-evening', plan.evening_plan);
+        renderList('plan-morning', plan.morning_plan || []);
+        renderList('plan-afternoon', plan.afternoon_plan || []);
+        renderList('plan-evening', plan.evening_plan || []);
+    } else if (data.daily_plan && data.daily_plan.error) {
+        // Handle Planner Error
+        document.getElementById('mask-rec').innerText = "Error";
+        document.getElementById('hydration-rec').innerText = "--";
+        ['plan-morning', 'plan-afternoon', 'plan-evening'].forEach(id => {
+            document.getElementById(id).innerHTML = `<li style="color: #ef4444;">${data.daily_plan.error}</li>`;
+        });
     }
     
     // Update Map
@@ -452,6 +463,8 @@ function analyzeHistory(history) {
 }
 
 function updateForecastChart(forecastData, label) {
+    if (!forecastData || !Array.isArray(forecastData)) return;
+    
     const ctx = document.getElementById('forecastChart').getContext('2d');
     
     // Format labels (Days)
