@@ -34,7 +34,7 @@ def get_env(lat, lon):
         return jsonify({"error": f"Environment data error: {str(e)}"}), 500
 
     try:
-        health = health_reasoning(env_data, api_key)
+        health = health_reasoning(env_data)
     except Exception as e:
         health = "Health advice unavailable (Check OpenAI API Key). Data: " + str(env_data)
 

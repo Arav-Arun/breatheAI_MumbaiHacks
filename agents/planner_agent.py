@@ -7,6 +7,7 @@ class PlannerAgent:
     def __init__(self):
         pass
     
+    def generate_daily_plan(self, env_data, health_analysis):
         """Generate personalized daily health plan"""
         aqi = env_data.get('aqi')
         if aqi is None:
