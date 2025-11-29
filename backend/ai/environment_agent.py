@@ -142,27 +142,45 @@ def get_aqi_forecast(lat: float, lon: float) -> list:
 
 def get_aqi_history(lat: float, lon: float) -> list:
     """
-    Simulates 7-day AQI history.
-    In a real app, this would use the History API (paid) or a database.
+    Fetches 7-day AQI history using OpenWeatherMap Air Pollution History API.
     """
-    import random
-    from datetime import datetime, timedelta
-    
-    history = []
-    today = datetime.now()
-    
-    for i in range(7, 0, -1):
-        date = today - timedelta(days=i)
-        day_name = date.strftime('%a')
-        date_str = date.strftime('%Y-%m-%d')
+    try:
+        from datetime import datetime, timedelta
+        import time
         
-        # Simulate AQI
-        aqi = random.randint(50, 250)
+        # Calculate timestamps for the last 7 days
+        end_dt = datetime.now()
+        start_dt = end_dt - timedelta(days=7)
         
-        history.append({
-            "day": day_name,
-            "max_aqi": aqi,
-            "date": date_str
-        })
+        start_ts = int(start_dt.timestamp())
+        end_ts = int(end_dt.timestamp())
         
-    return history
+        url = f"http://api.openweathermap.org/data/2.5/air_pollution/history?lat={lat}&lon={lon}&start={start_ts}&end={end_ts}&appid={OPENWEATHER_API_KEY}"
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
+        
+        # Process hourly data into daily max AQI
+        daily_history = {}
+        
+        for item in data.get('list', []):
+            dt = datetime.fromtimestamp(item['dt'])
+            date_str = dt.strftime('%Y-%m-%d')
+            day_name = dt.strftime('%a')
+            
+            owm_aqi = item['main']['aqi']
+            aqi_map = {1: 40, 2: 80, 3: 120, 4: 180, 5: 250}
+            aqi_val = aqi_map.get(owm_aqi, 100)
+            
+            if date_str not in daily_history:
+                daily_history[date_str] = {"day": day_name, "max_aqi": aqi_val, "date": date_str}
+            else:
+                daily_history[date_str]["max_aqi"] = max(daily_history[date_str]["max_aqi"], aqi_val)
+        
+        # Return values sorted by date
+        sorted_history = sorted(daily_history.values(), key=lambda x: x['date'])
+        return sorted_history
+        
+    except requests.RequestException:
+        # Fallback if History API fails (e.g., API key restrictions)
+        return []

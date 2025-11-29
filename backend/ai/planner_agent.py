@@ -107,10 +107,10 @@ def generate_daily_plan(env_data: dict, health_analysis: str | dict) -> dict:
     
     # Try to parse the AI output
     if isinstance(health_analysis, str): # Use health_analysis as the source string
-        health_advice_string = health_analysis # Alias for clarity
-        morning_match = re.search(r"### 🌅 Morning Plan\s*(.*?)(?=###|$)", health_advice_string, re.DOTALL)
-        afternoon_match = re.search(r"### ☀️ Afternoon Plan\s*(.*?)(?=###|$)", health_advice_string, re.DOTALL)
-        evening_match = re.search(r"### 🌙 Evening Plan\s*(.*?)(?=###|$)", health_advice_string, re.DOTALL)
+        health_advice = health_analysis    # Regex to extract sections
+        morning_match = re.search(r'### Morning Plan\s*(.*?)\s*(?=###|$)', health_advice, re.DOTALL | re.IGNORECASE)
+        afternoon_match = re.search(r'### Afternoon Plan\s*(.*?)\s*(?=###|$)', health_advice, re.DOTALL | re.IGNORECASE)
+        evening_match = re.search(r'### Evening Plan\s*(.*?)\s*(?=###|$)', health_advice, re.DOTALL | re.IGNORECASE)
         
         if morning_match:
             morning_text = morning_match.group(1).strip()

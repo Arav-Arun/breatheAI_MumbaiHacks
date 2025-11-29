@@ -33,28 +33,24 @@ def health_reasoning(env: dict) -> str:
         {env.get('pollutants')}
 
         **Task:**
-    Provide a detailed health risk assessment and a daily routine in markdown format. Use the following structure:
-
-    ### 📊 Executive Summary
-    (2-3 sentences summarizing the overall air quality and weather impact)
-
-    ### 🧪 Pollutant Analysis
-    (Briefly explain the primary pollutants of concern based on the data, e.g., High PM2.5)
-
-    ### 🩺 Health Implications
-    (Specific risks for sensitive groups and general population)
-
-    ### 🛡️ Actionable Advice
-    (Bulleted list of specific recommendations: masks, outdoor activities, ventilation, hydration)
-
-    ### 🌅 Morning Plan
-    (Specific advice for morning activities, commute, and ventilation. Be detailed.)
-
-    ### ☀️ Afternoon Plan
-    (Advice for the hottest/busiest part of the day. Work/School adjustments.)
-
-    ### 🌙 Evening Plan
-    (Advice for evening commute, exercise, and sleep environment.)
+    Provide a concise daily health plan in markdown.
+    
+    **Required Output Format:**
+    
+    ### Executive Summary
+    (One sentence summary)
+    
+    ### Key Risks
+    (Bullet points of main risks)
+    
+    ### Morning Plan
+    (Specific advice for morning)
+    
+    ### Afternoon Plan
+    (Specific advice for afternoon)
+    
+    ### Evening Plan
+    (Specific advice for evening)
     """
         
         payload = {
