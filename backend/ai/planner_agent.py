@@ -253,3 +253,21 @@ def get_time_plan(time_of_day: str, aqi: int) -> list:
         risk_category = "low_risk"
 
     return plans.get(time_of_day, {}).get(risk_category, [])
+
+def analyze_forecast(forecast: list) -> dict:
+    """
+    Analyzes the weekly AQI forecast to find best and worst days.
+    """
+    if not forecast:
+        return {"best_day": "N/A", "worst_day": "N/A", "best_aqi": 0, "worst_aqi": 0}
+        
+    # Find min and max AQI
+    min_aqi_item = min(forecast, key=lambda x: x['max_aqi'])
+    max_aqi_item = max(forecast, key=lambda x: x['max_aqi'])
+    
+    return {
+        "best_day": f"{min_aqi_item['day']} ({min_aqi_item['date']})",
+        "best_aqi": min_aqi_item['max_aqi'],
+        "worst_day": f"{max_aqi_item['day']} ({max_aqi_item['date']})",
+        "worst_aqi": max_aqi_item['max_aqi']
+    }

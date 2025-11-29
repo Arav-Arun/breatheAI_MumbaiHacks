@@ -11,7 +11,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 # and 'ai' is in the same directory, we import directly from 'ai'.
 from ai.environment_agent import get_environment_data, get_coordinates, get_micro_aqi, get_aqi_forecast, get_aqi_history
 from ai.reasoning_agent import health_reasoning
-from ai.planner_agent import generate_daily_plan
+from ai.planner_agent import generate_daily_plan, analyze_forecast
 
 # Load environment variables (API keys) from the .env file
 # We explicitly point to the .env file in the parent directory to be safe
