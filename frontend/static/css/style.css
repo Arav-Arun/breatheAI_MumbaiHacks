@@ -548,6 +548,25 @@ input:checked + .slider:before {
     .health-content {
         font-size: 0.95rem;
     }
+
+    /* Footer Mobile Optimization */
+    footer {
+        margin-top: 2rem;
+        padding-bottom: 1rem;
+    }
+
+    .footer-content {
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+        gap: 0.5rem;
+        width: 90%; /* Ensure it doesn't touch edges */
+        justify-content: center;
+        flex-wrap: wrap; /* Allow wrapping if needed */
+    }
+
+    .footer-logo {
+        height: 1.2em; /* Smaller logo */
+    }
 }
 
 /* AQI Color classes */
