@@ -1,4 +1,4 @@
-# 🌬️ BreatheAI - Clarity in every breath
+# BreatheAI - Clarity in every breath
 
 A comprehensive agentic AI system designed to help individuals navigate India's severe air pollution problem through intelligent, autonomous agents that collect data, reason about health impacts, and plan personalized actions.
 
