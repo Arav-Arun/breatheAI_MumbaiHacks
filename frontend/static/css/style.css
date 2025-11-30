@@ -234,69 +234,36 @@ button.secondary:hover {
     background: rgba(255, 255, 255, 0.1);
 }
 
-/* Loading Overlay */
-.loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(15, 23, 42, 0.85);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    z-index: 2000; /* High z-index to cover everything */
-    display: none;
-    flex-direction: column;
+/* Loading Inline */
+.loading-inline {
+    display: none; /* Toggled by JS */
+    flex-direction: row;
     justify-content: center;
     align-items: center;
-    gap: 2rem;
-    animation: fadeIn 0.3s ease-out;
+    gap: 1rem;
+    margin-top: 2rem;
+    animation: fadeIn 0.5s ease-out;
 }
 
-.spinner-container {
-    position: relative;
-    width: 80px;
-    height: 80px;
-}
-
-.spinner {
-    width: 100%;
-    height: 100%;
-    border: 4px solid rgba(56, 189, 248, 0.1);
+.spinner-small {
+    width: 24px;
+    height: 24px;
+    border: 3px solid rgba(56, 189, 248, 0.2);
     border-left-color: var(--accent);
     border-radius: 50%;
-    animation: spin 1s cubic-bezier(0.55, 0.055, 0.675, 0.19) infinite;
+    animation: spin 1s linear infinite;
 }
 
-.spinner-inner {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    right: 10px;
-    bottom: 10px;
-    border: 4px solid rgba(56, 189, 248, 0.1);
-    border-right-color: #a855f7; /* Purple accent */
-    border-radius: 50%;
-    animation: spin 1.5s cubic-bezier(0.55, 0.055, 0.675, 0.19) infinite reverse;
+.loading-text {
+    font-size: 1.1rem;
+    color: var(--accent);
+    font-weight: 500;
+    animation: pulse 2s infinite;
 }
 
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
-}
-
-.loading-text {
-    font-size: 1.5rem;
-    color: #e0f2fe;
-    font-weight: 600;
-    text-align: center;
-    animation: pulse 2s infinite;
-}
-
-.loading-sub {
-    font-size: 1rem;
-    color: var(--text-secondary);
-    margin-top: -1rem;
 }
 
 @keyframes pulse {

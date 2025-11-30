@@ -105,7 +105,7 @@ function selectLocation(loc) {
 
 function showLoading() {
     document.body.classList.remove('landing-mode');
-    document.getElementById('loading').style.display = 'flex'; // Changed to flex for centering
+    document.getElementById('loading').style.display = 'flex';
     document.getElementById('dashboard').style.display = 'none';
 }
 
