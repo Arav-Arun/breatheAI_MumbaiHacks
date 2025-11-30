@@ -706,8 +706,14 @@ input:checked + .slider:before {
     }
 
     .footer-logo {
-        height: 0.85rem;
-        margin-bottom: 0;
+        display: none;
+    }
+
+    .footer-text-mobile {
+        display: inline-block;
+        font-weight: 700;
+        color: #fff;
+        font-size: 0.9rem;
     }
 
     .footer-logo {
@@ -785,6 +791,10 @@ footer {
 .footer-separator {
     margin: 0 0.5rem;
     opacity: 0.3;
+}
+
+.footer-text-mobile {
+    display: none;
 }
 
 .footer-icons {
