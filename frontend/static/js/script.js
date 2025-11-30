@@ -105,7 +105,7 @@ function selectLocation(loc) {
 
 function showLoading() {
     document.body.classList.remove('landing-mode');
-    document.getElementById('loading').style.display = 'block';
+    document.getElementById('loading').style.display = 'flex'; // Changed to flex for centering
     document.getElementById('dashboard').style.display = 'none';
 }
 
@@ -570,9 +570,10 @@ function updateMap(lat, lon, microData) {
     }
 
     // Fix for map not rendering correctly in hidden container
-    setTimeout(() => {
+    // Use requestAnimationFrame to ensure it runs after layout paint
+    requestAnimationFrame(() => {
         mapInstance.invalidateSize();
-    }, 100);
+    });
 
     // Add User Location Marker
     L.marker([lat, lon]).addTo(mapInstance)
