@@ -705,14 +705,7 @@ input:checked + .slider:before {
         gap: 0.3rem;
     }
 
-    .footer-logo {
-        display: none;
-    }
-
-    .footer-text-mobile {
-        display: inline-block;
-        font-weight: 700;
-        color: #fff;
+    .footer-logo-text {
         font-size: 0.9rem;
     }
 
@@ -781,20 +774,17 @@ footer {
     color: var(--accent);
 }
 
-.footer-logo {
-    height: 1.4em; /* Slightly larger than text */
-    width: auto;
-    display: block;
-    margin-bottom: -2px; /* Optical alignment */
-}
-
 .footer-separator {
     margin: 0 0.5rem;
     opacity: 0.3;
 }
 
-.footer-text-mobile {
-    display: none;
+.footer-logo-text {
+    font-weight: 700;
+    color: #fff;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .footer-icons {
