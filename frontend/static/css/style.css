@@ -686,15 +686,16 @@ input:checked + .slider:before {
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: 0.8rem 1rem;
-        font-size: 0.7rem;
+        padding: 0.6rem 0.8rem;
+        font-size: 0.65rem;
         gap: 0.3rem;
         width: auto;
-        max-width: 98%;
+        max-width: 100%;
         flex-wrap: nowrap;
-        line-height: 1.4;
+        line-height: 1.3;
         border-radius: 50px;
         text-align: center;
+        white-space: nowrap; /* Force single line if possible */
     }
 
     .footer-icons {
