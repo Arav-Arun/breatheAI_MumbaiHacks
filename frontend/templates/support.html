@@ -180,5 +180,33 @@
             </div>
         </div>
     </div>
+    </div>
+
+    <script>
+        // Parse city from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const city = urlParams.get('city');
+
+        if (city) {
+            // Update Header
+            const subtitle = document.querySelector('.emergency-subtitle');
+            if (subtitle) {
+                subtitle.textContent = `Emergency resources in ${city} & immediate help`;
+            }
+
+            // Update Google Maps Links
+            const mapLinks = document.querySelectorAll('a[href^="https://www.google.com/maps/search/"]');
+            mapLinks.forEach(link => {
+                let href = link.getAttribute('href');
+                // Replace "near me" or add city
+                if (href.includes('near+me')) {
+                    href = href.replace('near+me', `in+${encodeURIComponent(city)}`);
+                } else {
+                    href += `+in+${encodeURIComponent(city)}`;
+                }
+                link.setAttribute('href', href);
+            });
+        }
+    </script>
 </body>
 </html>

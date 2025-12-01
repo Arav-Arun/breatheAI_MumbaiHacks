@@ -396,6 +396,13 @@ function updateDashboard(data) {
         newsContainer.innerHTML = '<div style="color: rgba(255,255,255,0.5);">No recent news found for this location.</div>';
     }
 
+    // Update Support Button with City
+    const supportBtn = document.getElementById('support-btn');
+    if (supportBtn) {
+        const city = data.city || 'India';
+        supportBtn.href = `/support?city=${encodeURIComponent(city)}`;
+    }
+
     // Planner Agent
     if (data.daily_plan && !data.daily_plan.error) {
         const plan = data.daily_plan;
