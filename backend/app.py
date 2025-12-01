@@ -9,9 +9,10 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 # Import our custom agent modules
 # Note: Since we are running this from the backend directory (or as a package), 
 # and 'ai' is in the same directory, we import directly from 'ai'.
-from ai.environment_agent import get_environment_data, get_coordinates, get_micro_aqi, get_aqi_forecast, get_aqi_history
+from ai.environment_agent import get_environment_data, get_aqi_history, get_aqi_forecast, get_coordinates, get_micro_aqi
 from ai.reasoning_agent import health_reasoning
 from ai.planner_agent import generate_daily_plan, analyze_forecast
+from ai.news_agent import get_pollution_news
 
 # Load environment variables (API keys) from the .env file
 # We explicitly point to the .env file in the parent directory to be safe
@@ -35,6 +36,20 @@ def home():
     Returns the index.html template when a user visits the root URL ('/').
     """
     return render_template("index.html")
+
+@app.route("/news")
+def news_page():
+    """
+    The dedicated news page route.
+    """
+    return render_template("news.html")
+
+@app.route("/support")
+def support_page():
+    """
+    The respiratory support directory page.
+    """
+    return render_template("support.html")
 
 @app.route("/api/geocode")
 def geocode():
@@ -65,6 +80,7 @@ def get_env(lat, lon):
     3. Generates a daily plan based on the data.
     4. Generates Micro-Zone AQI map data.
     5. Generates 5-day AQI Forecast & History.
+    6. Fetches Local Pollution News.
     """
     try:
         # Step 1: Get raw environment data (Weather + Air Quality)
@@ -83,15 +99,29 @@ def get_env(lat, lon):
     try:
         health = health_reasoning(env_data)
     except Exception as e:
-        health = f"Health advice unavailable. Data: {env_data}"
+        health = f"Health advice unavailable. Error: {str(e)}"
 
     # Step 3: Generate a Daily Plan (Actionable Steps)
+    daily_plan = {}
+    forecast_analysis = {}
+    news = []
+
     try:
         daily_plan = generate_daily_plan(env_data, health)
-        forecast_analysis = analyze_forecast(forecast_data)
     except Exception as e:
         daily_plan = {"error": f"Planner error: {str(e)}"}
+
+    try:
+        forecast_analysis = analyze_forecast(forecast_data)
+    except Exception as e:
         forecast_analysis = {}
+
+    try:
+        # Fetch News
+        city = env_data.get('city', 'India')
+        news = get_pollution_news(city)
+    except Exception as e:
+        news = []
 
     # Combine everything into one response
     response = {
@@ -100,6 +130,7 @@ def get_env(lat, lon):
         "forecast": forecast_data,
         "history": history_data,
         "forecast_analysis": forecast_analysis,
+        "news": news,
         "health_advice": health,
         "daily_plan": daily_plan
     }
@@ -110,6 +141,14 @@ def get_env(lat, lon):
 # Export 'application' for Vercel deployment
 application = app
 
-# Run the app locally if this file is executed directly
+@app.route('/api/news/<city>')
+def get_city_news(city):
+    try:
+        # Fetch 20 news items for the dedicated page
+        news = get_pollution_news(city, limit=20)
+        return jsonify(news)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 if __name__ == "__main__":
     app.run(debug=True, port=5001)

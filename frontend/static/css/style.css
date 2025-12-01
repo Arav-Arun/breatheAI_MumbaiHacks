@@ -14,12 +14,30 @@
     font-family: 'Inter', sans-serif;
 }
 
+a {
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    color: var(--accent);
+}
+
+a:visited {
+    color: var(--text-primary); /* Prevent purple visited links */
+}
+
+a:visited:hover {
+    color: var(--accent);
+}
+
 body {
-    /* Blue Sky & Clouds Pattern (Default for Dashboard) */
+    /* Dark Cyan/Teal Sky & Clouds Pattern */
     background: 
-        radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.1) 0%, transparent 25%), /* Lighter cyan glow */
-        radial-gradient(circle at 80% 50%, rgba(56, 189, 248, 0.1) 0%, transparent 25%),
-        linear-gradient(135deg, #0c4a6e 0%, #0f172a 50%, #1e293b 100%); /* Shifted towards cyan/sky */
+        radial-gradient(circle at 20% 20%, rgba(45, 212, 191, 0.1) 0%, transparent 25%), /* Teal glow */
+        radial-gradient(circle at 80% 50%, rgba(6, 182, 212, 0.1) 0%, transparent 25%), /* Cyan glow */
+        linear-gradient(135deg, #0f3642 0%, #082f49 50%, #020617 100%); /* Deep Cyan to Dark Blue */
     background-attachment: fixed;
     color: var(--text-primary);
     min-height: 100vh;
@@ -33,12 +51,12 @@ body {
 /* Landing Mode Styles */
 body.landing-mode {
     justify-content: center;
-    /* Cool Pattern Background: Dark grid with subtle glow */
-    background-color: #020617;
+    /* Explicit Dark Cyan Background */
+    background-color: #042f2e; /* Dark Teal Base */
     background-image: 
-        radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.15) 0%, transparent 60%),
-        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.2) 0%, transparent 60%), /* Cyan Glow */
+        linear-gradient(rgba(45, 212, 191, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(45, 212, 191, 0.05) 1px, transparent 1px);
     background-size: 100% 100%, 50px 50px, 50px 50px;
     background-position: center, center, center;
 }
@@ -129,6 +147,15 @@ p.subtitle {
     font-size: 1.2rem;
     font-weight: 500;
     letter-spacing: 0.5px;
+}
+
+.header-description {
+    max-width: 600px;
+    margin: 1.5rem auto 0;
+    color: #94a3b8;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    font-weight: 400;
 }
 
 /* Search Controls */
@@ -539,6 +566,76 @@ input:checked + .slider:before {
     color: var(--accent);
 }
 
+/* Show More Button on Dashboard */
+.show-more-btn {
+    display: inline-block;
+    padding: 0.5rem 1.5rem;
+    margin-top: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50px; /* Pill shape */
+    color: var(--text-primary);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.show-more-btn:hover {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(45, 212, 191, 0.2);
+}
+
+/* News Card Styles */
+.news-item {
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+}
+
+.news-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateX(5px);
+    border-color: rgba(6, 182, 212, 0.3);
+}
+
+.news-link {
+    text-decoration: none;
+    color: var(--text-primary);
+    display: block;
+    transition: color 0.2s;
+}
+
+.news-link:hover {
+    color: var(--accent);
+}
+
+.news-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #e2e8f0;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+}
+
+.news-meta {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.news-source {
+    color: #38bdf8;
+    font-weight: 500;
+}
+
 /* Responsive adjustments */
 .location-sub-controls {
     display: flex;
@@ -672,7 +769,7 @@ input:checked + .slider:before {
 
     /* Footer Mobile Optimization */
     footer {
-        margin-top: 2rem;
+        margin-top: 1rem;
         padding-bottom: 2rem; /* Ensure space at bottom */
     }
 
@@ -735,7 +832,7 @@ input:checked + .slider:before {
 
 /* Footer */
 footer {
-    margin-top: 4rem;
+    margin-top: 2rem;
     padding-bottom: 2rem;
     width: 100%;
     display: flex;
@@ -786,6 +883,15 @@ footer {
     font-size: 1rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    transition: color 0.2s;
+}
+
+.logo-link {
+    text-decoration: none;
+}
+
+.logo-link:hover .footer-logo-text {
+    color: var(--accent);
 }
 
 .footer-icons {
@@ -809,4 +915,252 @@ footer {
 .github-link svg {
     width: 1.2em;
     height: 1.2em;
+}
+/* Back Button Styling */
+.back-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50px;
+    color: var(--text-primary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    margin-bottom: 2rem;
+    backdrop-filter: blur(10px);
+}
+
+.back-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateX(-5px);
+    border-color: var(--primary-color);
+}
+
+/* News Card Bento Styling */
+.news-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    padding-bottom: 3rem;
+}
+
+.news-card-bento {
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 1.5rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+}
+
+.news-card-bento:hover {
+    transform: translateY(-5px);
+    background: rgba(30, 41, 59, 0.8);
+    border-color: var(--primary-color);
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+}
+
+.news-card-bento.featured {
+    grid-column: span 2;
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.8) 100%);
+}
+
+.news-content h3 {
+    font-size: 1.2rem;
+    margin: 0.8rem 0;
+    line-height: 1.4;
+}
+
+.news-content h3 a {
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.news-content h3 a:hover {
+    color: var(--accent);
+}
+
+.read-more {
+    display: inline-block;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+    opacity: 0.8;
+    transition: all 0.2s;
+}
+
+.read-more:hover {
+    opacity: 1;
+    transform: translateX(3px);
+}
+
+/* News Page Header & Filters */
+.news-header {
+    margin-bottom: 3rem;
+    text-align: center;
+    padding-top: 2rem;
+}
+
+.filter-controls {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+}
+
+.filter-input, .filter-select {
+    padding: 0.8rem 1.5rem;
+    border-radius: 50px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(15, 23, 42, 0.6);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    outline: none;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.filter-input {
+    width: 320px;
+}
+
+.filter-select {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1em;
+    padding-right: 2.5rem;
+    appearance: none;
+}
+
+.filter-input:focus, .filter-select:focus {
+    border-color: var(--primary-color);
+    background: rgba(15, 23, 42, 0.8);
+    box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.15);
+}
+
+.no-news {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 4rem;
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 24px;
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 1rem;
+    }
+
+    .container {
+        padding: 1rem;
+    }
+
+    h1 {
+        font-size: 2rem;
+    }
+
+    .subtitle {
+        font-size: 1rem;
+    }
+
+    .card {
+        padding: 1.2rem;
+    }
+
+    .card-label {
+        font-size: 0.8rem;
+    }
+
+    .card-value {
+        font-size: 1.8rem;
+    }
+
+    /* Collapse all grids to single column */
+    .dashboard-grid, 
+    .forecast-grid,
+    .news-grid,
+    .support-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    /* Ensure full width for spanned items */
+    .card-radar, 
+    .card-aqi, 
+    .card-metrics, 
+    .card-forecast, 
+    .card-map, 
+    .card-news, 
+    .card-support, 
+    .card-advice, 
+    .card-planner,
+    .news-card-bento.featured {
+        grid-column: span 1;
+    }
+
+    /* Touch Targets */
+    button, 
+    .action-btn, 
+    .support-btn, 
+    .show-more-btn, 
+    .back-button,
+    .filter-select,
+    .filter-input {
+        min-height: 44px; /* Apple Human Interface Guidelines */
+        padding: 0.8rem 1.2rem;
+    }
+
+    .filter-input {
+        width: 100%;
+    }
+    
+    .location-controls {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .location-sub-controls {
+        width: 100%;
+    }
+    
+    #location-btn, #search-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Support Button */
+.support-btn {
+    display: inline-block;
+    padding: 0.8rem 1.5rem;
+    background: rgba(220, 38, 38, 0.2);
+    border: 1px solid rgba(220, 38, 38, 0.4);
+    border-radius: 50px;
+    color: #fca5a5;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.support-btn:hover {
+    background: rgba(220, 38, 38, 0.4);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2);
 }

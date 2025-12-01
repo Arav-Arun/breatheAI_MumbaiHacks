@@ -1,251 +1,65 @@
 """
-Planner Agent - Generates actionable health plans based on AQI and risk levels.
+Planner Agent - Generates actionable health plans based on AQI and risk levels using Gemini.
 """
-from datetime import datetime
+import re
 
-def generate_daily_plan(env_data: dict, health_analysis: str | dict) -> dict:
+def generate_daily_plan(env: dict, health_advice: str) -> dict:
     """
-    Generate personalized daily health plan based on environment data and health analysis.
+    Generates a personalized daily plan using pure logic (Instant).
+    No external AI calls to ensure maximum speed.
     """
-    aqi = env_data.get('aqi', 0) or 0
+    aqi = env.get('aqi', 0)
     
-    # Determine risk level
-    if isinstance(health_analysis, dict):
-        risk_level = health_analysis.get('risk_level', 'moderate')
-    else:
-        risk_level = 'moderate'
-        if aqi > 150: risk_level = 'high'
-        if aqi > 250: risk_level = 'severe'
+    # --- 1. SAFETY METRICS ---
+    if aqi > 300: mask_rec = "N95 (Mandatory)"
+    elif aqi > 200: mask_rec = "N95 (Recommended)"
+    elif aqi > 150: mask_rec = "Mask Required"
+    elif aqi > 100: mask_rec = "Mask for Sensitive Groups"
+    else: mask_rec = "Optional"
+    
+    if aqi > 200: hydration = "3.5 Liters"
+    elif aqi > 150: hydration = "3 Liters"
+    else: hydration = "2.5 Liters"
 
-    # Determine smoke arrival
-    smoke_arrival = 24
-    if isinstance(health_analysis, dict):
-        smoke_arrival = health_analysis.get('smoke_arrival_hours', 24)
-
-    fire_count = env_data.get('fire_count', 0)
+    # --- 2. SCHEDULE GENERATION (Rule-Based Paragraphs) ---
+    # We prioritize the detailed paragraphs the user requested.
     
-    # Mask recommendations
-    if aqi > 300:
-        mask_level = "N95 (Mandatory)"
-        mask_priority = "critical"
-    elif aqi > 200:
-        mask_level = "N95 (Highly Recommended)"
-        mask_priority = "high"
-    elif aqi > 150:
-        mask_level = "N95 or KN95"
-        mask_priority = "medium"
-    elif aqi > 100:
-        mask_level = "Surgical Mask"
-        mask_priority = "low"
-    else:
-        mask_level = "Optional"
-        mask_priority = "none"
-    
-    # Outdoor restrictions
-    if aqi > 300:
-        outdoor_restriction = "Complete restriction - Stay indoors"
-        outdoor_allowed = False
-    elif aqi > 200:
-        outdoor_restriction = "Severe restriction - Only essential outdoor activities"
-        outdoor_allowed = False
-    elif aqi > 150:
-        outdoor_restriction = "Moderate restriction - Limit outdoor time to 30 minutes"
-        outdoor_allowed = True
-    elif aqi > 100:
-        outdoor_restriction = "Sensitive groups should limit outdoor time"
-        outdoor_allowed = True
-    else:
-        outdoor_restriction = "Normal outdoor activities allowed"
-        outdoor_allowed = True
-    
-    # Inhaler reminders
-    inhaler_reminders = []
-    breathlessness_risk = 0
-    if isinstance(health_analysis, dict):
-        breathlessness_risk = health_analysis.get('breathlessness_risk', 0)
-
-    if risk_level in ['high', 'severe'] or breathlessness_risk > 6:
-        inhaler_reminders = [
-            "Morning: Use preventive inhaler before going out",
-            "Evening: Keep rescue inhaler accessible"
-        ]
-    
-    # Hydration
-    hydration_ml = 2000
-    if aqi > 200:
-        hydration_ml = 3000
-    elif aqi > 150:
-        hydration_ml = 2500
-    
-    # Indoor purification
-    purifier_recommendations = []
     if aqi > 150:
-        purifier_recommendations.append("Run air purifier continuously")
-        purifier_recommendations.append("Keep windows closed")
+        morning_txt = "**Avoid outdoor exercise.**\n\nThe air quality is currently poor, with high levels of particulate matter. Engaging in strenuous activity outdoors can lead to deep inhalation of these pollutants, causing respiratory stress. Instead, opt for indoor activities like yoga or light stretching in a filtered environment. Keep windows closed to prevent pollutant entry."
+        afternoon_txt = "**Stay indoors and protect yourself.**\n\nPollution levels often peak or remain high during the day. If you must go out, wearing an N95 mask is highly recommended to filter out harmful particles. Use an air purifier if available in your workspace or home to maintain healthy indoor air quality."
+        evening_txt = "**No evening walks.**\n\nPollutants often settle near the ground at night due to cooling temperatures. Avoid evening walks to prevent exposure. Run an air purifier in your bedroom to ensure you sleep in clean air, which is crucial for overnight recovery."
     elif aqi > 100:
-        purifier_recommendations.append("Run air purifier during peak hours (10 AM - 6 PM)")
-        purifier_recommendations.append("Close windows during high traffic hours")
+        morning_txt = "**Light activity only.**\n\nAir quality is moderate but sensitive groups should be careful. A short walk is okay, but avoid heavy running. Wear a mask if you have asthma or other respiratory conditions."
+        afternoon_txt = "**Monitor conditions.**\n\nKeep an eye on the AQI. If it rises, move indoors. Ensure you are drinking plenty of water to help your body cope with any inhaled particulates."
+        evening_txt = "**Limit outdoor exposure.**\n\nIt's best to relax indoors this evening. If you do go out, keep it brief. Ensure your sleeping area is well-ventilated if the outside air improves, otherwise keep windows shut."
     else:
-        purifier_recommendations.append("Run air purifier 2-3 hours daily")
-        purifier_recommendations.append("Ventilate during low pollution hours")
-    
-    # Stubble smoke action plan
-    smoke_actions = []
-    if fire_count > 0 and smoke_arrival < 12:
-        smoke_actions.append(f"⚠️ Stubble smoke arriving in {smoke_arrival} hours")
-        smoke_actions.append("Seal all windows and doors")
-        smoke_actions.append("Run air purifier at maximum")
-        smoke_actions.append("Avoid outdoor activities")
-        smoke_actions.append("Use N95 mask if going out is necessary")
-    
-    # Extract AI-generated plan if available
-    import re
-    
-    morning_plan = []
-    afternoon_plan = []
-    evening_plan = []
-    
-    # Try to parse the AI output
-    if isinstance(health_analysis, str): # Use health_analysis as the source string
-        # Regex to extract sections
-        morning_match = re.search(r'### Morning Plan\s*(.*?)\s*(?=###|$)', health_analysis, re.DOTALL | re.IGNORECASE)
-        afternoon_match = re.search(r'### Afternoon Plan\s*(.*?)\s*(?=###|$)', health_analysis, re.DOTALL | re.IGNORECASE)
-        evening_match = re.search(r'### Evening Plan\s*(.*?)\s*(?=###|$)', health_analysis, re.DOTALL | re.IGNORECASE)
-        
-        def parse_plan_text(text):
-            if not text: return ""
-            # Return the full text, stripped of leading/trailing whitespace
-            return text.strip()
+        morning_txt = "**Good for outdoor activities.**\n\nThe air quality is relatively good this morning. It is a great time for a jog or a brisk walk in the park. Fresh air can boost your energy levels and improve mental clarity. Ensure you ventilate your home by opening windows to let fresh air circulate."
+        afternoon_txt = "**Moderate activity allowed.**\n\nWhile the air is acceptable, continue to monitor changes. Stay hydrated to help your body flush out any toxins. It is safe to keep windows open for cross-ventilation, but be mindful if you live near heavy traffic."
+        evening_txt = "**Safe for evening strolls.**\n\nThe evening air is pleasant and safe. A post-dinner walk can aid digestion and help you relax. Ensure good sleep hygiene by keeping your bedroom well-ventilated and comfortable."
 
-        if morning_match:
-            morning_plan = parse_plan_text(morning_match.group(1))
-            
-        if afternoon_match:
-            afternoon_plan = parse_plan_text(afternoon_match.group(1))
-            
-        if evening_match:
-            evening_plan = parse_plan_text(evening_match.group(1))
-
-    # Fallback to rule-based logic if AI parsing failed or returned empty
-    if not morning_plan:
-        if aqi > 150:
-            morning_plan = "**Avoid outdoor exercise.**\nKeep windows closed.\nUse air purifier if available."
-        else:
-            morning_plan = "**Good time for outdoor activities.**\nVentilate your home.\nEnjoy the fresh air."
-
-    if not afternoon_plan:
-        if aqi > 150:
-            afternoon_plan = "**Stay indoors as much as possible.**\nWear a mask if you must go out.\nDrink plenty of water."
-        else:
-            afternoon_plan = "**Carry a mask just in case.**\nStay hydrated.\nMonitor AQI levels."
-
-    if not evening_plan:
-        if aqi > 150:
-            evening_plan = "**Avoid evening walks.**\nRun air purifier in bedroom.\nEnsure windows are sealed."
-        else:
-            evening_plan = "**Safe for evening walk.**\nLight ventilation allowed.\nRelax and unwind."
-    
     return {
-        "mask_level": mask_level,
-        "mask_priority": mask_priority,
-        "outdoor_restriction": outdoor_restriction,
-        "outdoor_allowed": outdoor_allowed,
-        "inhaler_reminders": inhaler_reminders,
-        "hydration_ml": hydration_ml,
-        "purifier_recommendations": purifier_recommendations,
-        "smoke_actions": smoke_actions,
-        "morning_plan": morning_plan,
-        "afternoon_plan": afternoon_plan,
-        "evening_plan": evening_plan,
-        "crisis_mode": aqi > 400
+        "mask_level": mask_rec,
+        "hydration_ml": hydration,
+        "morning_plan": morning_txt,
+        "afternoon_plan": afternoon_txt,
+        "evening_plan": evening_txt
     }
 
-def get_time_plan(time_of_day: str, aqi: int) -> list:
+def analyze_forecast(forecast_data):
     """
-    Get detailed, actionable plan for specific time of day based on AQI.
+    Analyzes the 5-day forecast to find the best and worst days.
     """
-    try:
-        aqi = int(aqi)
-    except (ValueError, TypeError):
-        aqi = 0
-
-    plans = {
-        "morning": {
-            "low_risk": [
-                "✅ **Activity**: The air is relatively clean. It's a great time for an outdoor run or cycling session (6-8 AM).",
-                "🥗 **Diet**: Start your day with a light, antioxidant-rich breakfast (berries, nuts).",
-                "🏠 **Home**: Open windows to ventilate your home."
-            ],
-            "moderate_risk": [
-                "⚠️ **Activity**: Limit intense outdoor cardio to 30 minutes. Prefer brisk walking.",
-                "😷 **Protection**: Carry a mask. Wear it if you feel irritation.",
-                "🥗 **Diet**: Drink warm water with lemon and honey."
-            ],
-            "high_risk": [
-                "🚫 **Activity**: **SKIP outdoor exercise.** Switch to indoor yoga or home workouts.",
-                "😷 **Protection**: **N95 mask is mandatory** if outdoors.",
-                "💊 **Health**: Keep preventive inhaler handy if asthmatic.",
-                "🥗 **Diet**: Consume Turmeric milk (Haldi Doodh) and Vitamin C rich foods."
-            ]
-        },
-        "afternoon": {
-            "low_risk": [
-                "✅ **Activity**: Normal outdoor activities allowed.",
-                "💧 **Hydration**: Aim for 2-3 liters of water throughout the day."
-            ],
-            "moderate_risk": [
-                "⚠️ **Activity**: Avoid strenuous labor outdoors.",
-                "🏠 **Home**: Keep windows closed during peak traffic (4-7 PM).",
-                "💧 **Hydration**: Drink water every hour."
-            ],
-            "high_risk": [
-                "🚫 **Activity**: **STAY INDOORS.** Avoid outdoor lunch breaks.",
-                "🏠 **Home**: Run air purifier on **MAX**. Seal gaps under doors.",
-                "🥗 **Diet**: Eat light meals (Salads, Soups).",
-                "🚗 **Commute**: Use 'Recirculate' mode in car AC."
-            ]
-        },
-        "evening": {
-            "low_risk": [
-                "✅ **Activity**: Evening walk in the park is safe.",
-                "🏠 **Home**: Ventilate bedroom before sleeping."
-            ],
-            "moderate_risk": [
-                "⚠️ **Activity**: Limit to a short walk. Avoid busy roads.",
-                "🏠 **Home**: Run air purifier in bedroom for 1 hour before sleep."
-            ],
-            "high_risk": [
-                "🚫 **Activity**: **No evening walks.** Pollution settles low at night.",
-                "🏠 **Home**: Keep bedroom windows **sealed**. Air purifier ON.",
-                "🚿 **Hygiene**: Wash face/hands immediately after returning home.",
-                "🍵 **Diet**: Drink warm Ginger tea or soup."
-            ]
-        }
-    }
-    
-    if aqi > 200:
-        risk_category = "high_risk"
-    elif aqi > 100:
-        risk_category = "moderate_risk"
-    else:
-        risk_category = "low_risk"
-
-    return plans.get(time_of_day, {}).get(risk_category, [])
-
-def analyze_forecast(forecast: list) -> dict:
-    """
-    Analyzes the weekly AQI forecast to find best and worst days.
-    """
-    if not forecast:
-        return {"best_day": "N/A", "worst_day": "N/A", "best_aqi": 0, "worst_aqi": 0}
+    if not forecast_data:
+        return {}
         
-    # Find min and max AQI
-    min_aqi_item = min(forecast, key=lambda x: x['max_aqi'])
-    max_aqi_item = max(forecast, key=lambda x: x['max_aqi'])
+    # Find day with max AQI
+    worst_item = max(forecast_data, key=lambda x: x['max_aqi'])
+    # Find day with min AQI
+    best_item = min(forecast_data, key=lambda x: x['max_aqi'])
     
     return {
-        "best_day": f"{min_aqi_item['day']} ({min_aqi_item['date']})",
-        "best_aqi": min_aqi_item['max_aqi'],
-        "worst_day": f"{max_aqi_item['day']} ({max_aqi_item['date']})",
-        "worst_aqi": max_aqi_item['max_aqi']
+        "worst_day": f"{worst_item['day']} ({worst_item['date']})",
+        "worst_aqi": worst_item['max_aqi'],
+        "best_day": f"{best_item['day']} ({best_item['date']})",
+        "best_aqi": best_item['max_aqi']
     }

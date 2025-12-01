@@ -73,7 +73,9 @@ def get_environment_data(lat: float, lon: float) -> dict:
             "icon": weather_data.get("weather", [{}])[0].get("icon"),
             "city": weather_data.get("name"),
             "aqi": overall_aqi,
-            "pollutants": pollutants
+            "pollutants": pollutants,
+            "lat": lat,
+            "lon": lon
         }
     except requests.RequestException as e:
         raise Exception(f"API Request Error: {str(e)}")
@@ -108,45 +110,10 @@ def get_coordinates(city: str, country_code: str = None) -> list:
 
 def get_micro_aqi(lat: float, lon: float) -> list:
     """
-    Simulates micro-zone AQI data (Traffic, Construction, etc.) around a location.
-    In a real app, this would fetch from a granular API or IoT sensor network.
+    Fetches micro-zone AQI data.
+    Currently returns empty list as no granular API is available.
     """
-    import random
-    
-    micro_zones = []
-    types = [
-        {"type": "Traffic Hotspot", "risk": "High", "offset": 0.005},
-        {"type": "Construction Zone", "risk": "Severe", "offset": 0.003},
-        {"type": "Industrial Belt", "risk": "High", "offset": 0.008},
-        {"type": "Green Zone (Park)", "risk": "Low", "offset": 0.004},
-        {"type": "Residential Area", "risk": "Moderate", "offset": 0.002},
-        {"type": "Coastal Wind Zone", "risk": "Low", "offset": 0.006}
-    ]
-
-    # Generate 6-8 random points
-    for _ in range(random.randint(6, 8)):
-        zone = random.choice(types)
-        # Randomize location slightly around the center
-        p_lat = float(lat) + random.uniform(-zone["offset"], zone["offset"])
-        p_lon = float(lon) + random.uniform(-zone["offset"], zone["offset"])
-        
-        # Simulate AQI based on type
-        if zone["type"] == "Green Zone (Park)" or zone["type"] == "Coastal Wind Zone":
-            aqi = random.randint(30, 80)
-        elif zone["type"] == "Residential Area":
-            aqi = random.randint(80, 150)
-        else:
-            aqi = random.randint(150, 350)
-
-        micro_zones.append({
-            "lat": p_lat,
-            "lon": p_lon,
-            "type": zone["type"],
-            "aqi": aqi,
-            "risk": zone["risk"]
-        })
-    
-    return micro_zones
+    return []
 
 def get_aqi_forecast(lat: float, lon: float) -> list:
     """
@@ -224,5 +191,4 @@ def get_aqi_history(lat: float, lon: float) -> list:
         return sorted_history
         
     except requests.RequestException:
-        # Return empty list if API fails (No simulation)
         return []

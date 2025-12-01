@@ -371,6 +371,31 @@ function updateDashboard(data) {
         healthDiv.innerHTML = html;
     }
 
+    // Local News
+    const newsContainer = document.getElementById('news-container');
+    if (data.news && data.news.length > 0) {
+        newsContainer.innerHTML = '';
+        data.news.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'news-item';
+            div.innerHTML = `
+                <a href="${item.link}" target="_blank">${item.title}</a>
+                <span class="news-source">${item.source} • ${item.date}</span>
+            `;
+            newsContainer.appendChild(div);
+        });
+        
+        // Update Show More Button
+        const showMoreBtn = document.getElementById('show-more-news');
+        if (showMoreBtn) {
+            const city = data.city || 'India';
+            showMoreBtn.href = `/news?city=${encodeURIComponent(city)}`;
+            showMoreBtn.target = "_blank"; // Open in new tab
+        }
+    } else {
+        newsContainer.innerHTML = '<div style="color: rgba(255,255,255,0.5);">No recent news found for this location.</div>';
+    }
+
     // Planner Agent
     if (data.daily_plan && !data.daily_plan.error) {
         const plan = data.daily_plan;
@@ -409,10 +434,8 @@ function updateDashboard(data) {
     }
     
     // Update Map
-    if (data.micro_aqi) {
-        const centerLat = data.micro_aqi[0].lat;
-        const centerLon = data.micro_aqi[0].lon;
-        updateMap(centerLat, centerLon, data.micro_aqi);
+    if (env.lat && env.lon) {
+        updateMap(env.lat, env.lon, data.micro_aqi || []);
     }
     
     // Show Detected Location
