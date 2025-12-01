@@ -24,15 +24,17 @@
                 <h2 style="color: #fca5a5;">🚑 Find Help Now</h2>
                 <p style="color: #94a3b8; margin-bottom: 1.5rem; font-size: 0.95rem;">Locate nearest medical facilities using live maps.</p>
                 
-                <a href="https://www.google.com/maps/search/pharmacy+with+inhalers+near+me" target="_blank" class="action-btn btn-primary btn-pulse">
-                    <span>💊 Nearest Pharmacies</span>
-                </a>
-                <a href="https://www.google.com/maps/search/nebulisation+center+near+me" target="_blank" class="action-btn btn-secondary">
-                    <span>💨 Nebulisation Centers</span>
-                </a>
-                <a href="https://www.google.com/maps/search/pulmonologist+near+me" target="_blank" class="action-btn btn-outline">
-                    <span>👨‍⚕️ Find Pulmonologist</span>
-                </a>
+                <div class="action-grid">
+                    <a href="https://www.google.com/maps/search/pharmacy+with+inhalers+near+me" target="_blank" class="action-btn btn-primary btn-pulse">
+                        <span>💊 Pharmacies</span>
+                    </a>
+                    <a href="https://www.google.com/maps/search/nebulisation+center+near+me" target="_blank" class="action-btn btn-secondary">
+                        <span>💨 Nebulisation</span>
+                    </a>
+                    <a href="https://www.google.com/maps/search/pulmonologist+near+me" target="_blank" class="action-btn btn-outline">
+                        <span>👨‍⚕️ Pulmonologist</span>
+                    </a>
+                </div>
             </div>
 
             <!-- 2. Emergency Contacts -->
@@ -127,12 +129,10 @@
                         `;
                     }
 
-                    // 4. Oxygen Providers (Mock Logic for now, can be enhanced with AI later)
+                    // 4. Oxygen Providers
                     const oxygenList = document.getElementById('oxygen-list');
                     oxygenList.innerHTML = ''; // Clear loading
                     
-                    // For now, we don't have a real oxygen provider API, so we show a generic message
-                    // or specific ones if we are in India (preserving legacy behavior but checking country)
                     if (country === 'IN') {
                         oxygenList.innerHTML = `
                             <li>
@@ -145,12 +145,9 @@
                             </li>
                         `;
                     } else {
-                        oxygenList.innerHTML = `
-                            <li style="text-align: center; padding: 1.5rem; color: #94a3b8;">
-                                No specific verified providers found for this region.<br>
-                                Please use the map search below.
-                            </li>
-                        `;
+                        // If no specific providers, we just show the search button (which is outside this list)
+                        // So we leave the list empty or hide it
+                        oxygenList.style.display = 'none';
                     }
                 })
                 .catch(err => {
