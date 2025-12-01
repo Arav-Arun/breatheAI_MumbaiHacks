@@ -6,7 +6,7 @@
     <title>Respiratory Support - BreatheAI</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="icon" href="{{ url_for('static', filename='assets/favicon.jpg') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=7">
 
 </head>
 <body>
@@ -97,9 +97,10 @@
     </div>
 
     <script>
-        // Parse city from URL
+        // Parse city/country from URL
         const urlParams = new URLSearchParams(window.location.search);
         const city = urlParams.get('city');
+        const country = urlParams.get('country') || '';
 
         if (city) {
             // Update Header
@@ -112,7 +113,6 @@
             const mapLinks = document.querySelectorAll('a[href^="https://www.google.com/maps/search/"]');
             mapLinks.forEach(link => {
                 let href = link.getAttribute('href');
-                // Replace "near me" or add city
                 if (href.includes('near+me')) {
                     href = href.replace('near+me', `in+${encodeURIComponent(city)}`);
                 } else {
@@ -120,6 +120,37 @@
                 }
                 link.setAttribute('href', href);
             });
+            
+            // Fetch Emergency Numbers
+            fetch(`/api/support?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.ambulance) {
+                        // Update Ambulance
+                        const ambulanceBtn = document.querySelector('a[href^="tel:"]');
+                        if (ambulanceBtn) {
+                            ambulanceBtn.href = `tel:${data.ambulance}`;
+                            ambulanceBtn.innerHTML = `🚑 Call Ambulance (${data.ambulance})`;
+                        }
+                        
+                        // Update General/National
+                        const nationalNum = document.querySelector('.support-card span[style*="font-size: 1.5rem"]');
+                        if (nationalNum) {
+                            nationalNum.textContent = data.general || data.police;
+                        }
+                        
+                        // Add Notes if available
+                        if (data.notes) {
+                            const notesDiv = document.createElement('div');
+                            notesDiv.style.marginTop = '1rem';
+                            notesDiv.style.color = '#94a3b8';
+                            notesDiv.style.fontSize = '0.9rem';
+                            notesDiv.innerHTML = `ℹ️ ${data.notes}`;
+                            document.querySelector('.support-card:nth-child(2)').appendChild(notesDiv);
+                        }
+                    }
+                })
+                .catch(err => console.error("Failed to fetch emergency info:", err));
         }
     </script>
 </body>

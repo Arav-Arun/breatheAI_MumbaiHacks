@@ -400,7 +400,8 @@ function updateDashboard(data) {
     const supportBtn = document.getElementById('support-btn');
     if (supportBtn) {
         const city = data.city || 'India';
-        supportBtn.href = `/support?city=${encodeURIComponent(city)}`;
+        const country = data.country || '';
+        supportBtn.href = `/support?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}`;
     }
 
     // Planner Agent

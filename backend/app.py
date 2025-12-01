@@ -7,7 +7,7 @@ import sys
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from ai.environment_agent import get_environment_data, get_aqi_history, get_aqi_forecast, get_coordinates, get_micro_aqi
-from ai.reasoning_agent import health_reasoning
+from ai.reasoning_agent import health_reasoning, get_emergency_info
 from ai.planner_agent import generate_daily_plan, analyze_forecast
 from ai.news_agent import get_pollution_news
 
@@ -105,6 +105,18 @@ def get_city_news(city):
         return jsonify(news)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@app.route('/api/support')
+def get_support_info():
+    """Get emergency info for a location."""
+    city = request.args.get('city')
+    country = request.args.get('country')
+    
+    if not city:
+        return jsonify({"error": "City required"}), 400
+        
+    info = get_emergency_info(city, country)
+    return jsonify(info)
 
 if __name__ == "__main__":
     app.run(debug=True, port=5001)

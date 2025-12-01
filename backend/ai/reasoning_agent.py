@@ -108,3 +108,66 @@ def health_reasoning(env: dict) -> str:
 
     except Exception as e:
         return f"Health advice unavailable (Error: {str(e)}). Data: {env}"
+
+def get_emergency_info(city: str, country: str) -> dict:
+    """
+    Fetches emergency contact numbers for a specific location using Relevance AI.
+    """
+    try:
+        url = f"https://api-{RELEVANCE_REGION}.stack.tryrelevance.com/latest/studios/{TOOL_ID}/trigger"
+        
+        headers = {
+            "Authorization": f"{RELEVANCE_PROJECT}:{RELEVANCE_API_KEY}",
+            "Content-Type": "application/json"
+        }
+        
+        prompt = f"""
+        **Task:**
+        Provide the emergency contact numbers for **{city}, {country}**.
+        
+        **Required Output Format (JSON):**
+        {{
+            "ambulance": "Phone Number",
+            "police": "Phone Number",
+            "general": "Phone Number (e.g. 911, 112)",
+            "notes": "Brief 1-sentence advice specific to this location."
+        }}
+        
+        **Constraints:**
+        - Return ONLY valid JSON.
+        - If specific city numbers aren't found, use National numbers for {country}.
+        """
+        
+        payload = {
+            "params": {
+                "prompt": prompt
+            },
+            "project": RELEVANCE_PROJECT
+        }
+        
+        response = requests.post(url, headers=headers, json=payload)
+        response.raise_for_status()
+        
+        data = response.json()
+        output = data.get("output", {}).get("transformed", {}).get("advice")
+        
+        if not output:
+             output = data.get("output", {}).get("advice")
+
+        # Clean up code blocks if present
+        if "```json" in output:
+            output = output.split("```json")[1].split("```")[0]
+        elif "```" in output:
+            output = output.split("```")[1].split("```")[0]
+            
+        import json
+        return json.loads(output.strip())
+
+    except Exception as e:
+        print(f"Emergency info error: {e}")
+        return {
+            "ambulance": "112", 
+            "police": "112", 
+            "general": "112", 
+            "notes": "Could not fetch local numbers. Dial 112 for international emergency."
+        }
