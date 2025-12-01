@@ -278,7 +278,9 @@ button.secondary:hover {
     border: 3px solid rgba(56, 189, 248, 0.2);
     border-left-color: var(--accent);
     border-radius: 50%;
-    animation: spin 1s linear infinite;
+    animation: spin-infinite 1s linear infinite;
+    will-change: transform;
+    transform-origin: center;
 }
 
 .loading-text {
@@ -288,7 +290,7 @@ button.secondary:hover {
     animation: pulse 2s infinite;
 }
 
-@keyframes spin {
+@keyframes spin-infinite {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }

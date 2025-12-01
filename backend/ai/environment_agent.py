@@ -31,46 +31,100 @@ def calculate_aqi(pm25: float) -> int:
     else:
         return 500
 
+def get_waqi_data(lat: float, lon: float) -> dict:
+    """Fetches AQI data from WAQI API."""
+    try:
+        url = f"https://api.waqi.info/feed/geo:{lat};{lon}/?token={AQI_API_KEY}"
+        response = requests.get(url, timeout=5)
+        response.raise_for_status()
+        data = response.json()
+        
+        if data.get('status') != 'ok':
+            return {}
+            
+        return data.get('data', {})
+    except Exception as e:
+        print(f"WAQI API Error: {e}")
+        return {}
+
+def get_owm_pollution(lat: float, lon: float) -> dict:
+    """Fetches pollution data from OpenWeatherMap as fallback."""
+    try:
+        url = f"http://api.openweathermap.org/data/2.5/air_pollution?lat={lat}&lon={lon}&appid={OPENWEATHER_API_KEY}"
+        response = requests.get(url, timeout=5)
+        response.raise_for_status()
+        data = response.json()
+        
+        if not data.get('list'):
+            return {}
+            
+        record = data['list'][0]
+        components = record.get('components', {})
+        pm25 = components.get('pm2_5', 0)
+        
+        return {
+            "aqi": calculate_aqi(pm25),
+            "pollutants": {
+                "PM2.5": {"concentration": components.get("pm2_5", 0)},
+                "PM10": {"concentration": components.get("pm10", 0)},
+                "NO2": {"concentration": components.get("no2", 0)},
+                "SO2": {"concentration": components.get("so2", 0)},
+                "O3": {"concentration": components.get("o3", 0)},
+                "CO": {"concentration": components.get("co", 0)}
+            }
+        }
+    except Exception as e:
+        print(f"OWM Pollution Error: {e}")
+        return {}
+
 def get_environment_data(lat: float, lon: float) -> dict:
     """Fetches weather and air quality data."""
     try:
+        # 1. Weather Data (OpenWeatherMap)
         weather_url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={OPENWEATHER_API_KEY}&units=metric"
-        aqi_url = f"http://api.openweathermap.org/data/2.5/air_pollution?lat={lat}&lon={lon}&appid={OPENWEATHER_API_KEY}"
-
-        weather_res = requests.get(weather_url)
-        aqi_res = requests.get(aqi_url)
-
+        weather_res = requests.get(weather_url, timeout=5)
         weather_res.raise_for_status()
-        aqi_res.raise_for_status()
-
         weather_data = weather_res.json()
-        aqi_data = aqi_res.json()
         
-        # Process OWM AQI data
-        aqi_record = aqi_data.get('list', [{}])[0]
-        components = aqi_record.get('components', {})
-        pm25 = components.get('pm2_5', 0)
+        # 2. AQI Data (Try WAQI first, then OWM)
+        aqi_data = {}
+        waqi_data = get_waqi_data(lat, lon)
         
-        overall_aqi = calculate_aqi(pm25)
-        
-        pollutants = {
-            "PM2.5": {"concentration": components.get("pm2_5", 0)},
-            "PM10": {"concentration": components.get("pm10", 0)},
-            "NO2": {"concentration": components.get("no2", 0)},
-            "SO2": {"concentration": components.get("so2", 0)},
-            "O3": {"concentration": components.get("o3", 0)},
-            "CO": {"concentration": components.get("co", 0)}
-        }
+        if waqi_data:
+            # Process WAQI Data
+            iaqi = waqi_data.get('iaqi', {})
+            aqi_data = {
+                "aqi": waqi_data.get('aqi', 0),
+                "pollutants": {
+                    "PM2.5": {"concentration": iaqi.get("pm25", {}).get("v", 0)},
+                    "PM10": {"concentration": iaqi.get("pm10", {}).get("v", 0)},
+                    "NO2": {"concentration": iaqi.get("no2", {}).get("v", 0)},
+                    "SO2": {"concentration": iaqi.get("so2", {}).get("v", 0)},
+                    "O3": {"concentration": iaqi.get("o3", {}).get("v", 0)},
+                    "CO": {"concentration": iaqi.get("co", {}).get("v", 0)}
+                }
+            }
+        else:
+            # Fallback to OWM
+            print("WAQI failed, falling back to OWM...")
+            aqi_data = get_owm_pollution(lat, lon)
+
+        # Default if both fail
+        if not aqi_data:
+            aqi_data = {
+                "aqi": 0,
+                "pollutants": {k: {"concentration": 0} for k in ["PM2.5", "PM10", "NO2", "SO2", "O3", "CO"]}
+            }
 
         return {
             "temperature": weather_data.get("main", {}).get("temp"),
             "humidity": weather_data.get("main", {}).get("humidity"),
             "description": weather_data.get("weather", [{}])[0].get("description"),
             "icon": weather_data.get("weather", [{}])[0].get("icon"),
-            "city": weather_data.get("name"),
+            "city": waqi_data.get('city', {}).get('name', weather_data.get("name")), 
             "country": weather_data.get("sys", {}).get("country"),
-            "aqi": overall_aqi,
-            "pollutants": pollutants,
+            "aqi": aqi_data['aqi'],
+            "pollutants": aqi_data['pollutants'],
             "lat": lat,
             "lon": lon
         }

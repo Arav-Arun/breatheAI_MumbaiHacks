@@ -399,8 +399,8 @@ function updateDashboard(data) {
     // Update Support Button with City
     const supportBtn = document.getElementById('support-btn');
     if (supportBtn) {
-        const city = data.city || 'India';
-        const country = data.country || '';
+        const city = env.city || 'India';
+        const country = env.country || '';
         supportBtn.href = `/support?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}`;
     }
 

@@ -109,10 +109,27 @@ def health_reasoning(env: dict) -> str:
     except Exception as e:
         return f"Health advice unavailable (Error: {str(e)}). Data: {env}"
 
+# Import local data
+try:
+    from backend.data.emergency_data import EMERGENCY_DATA, COUNTRY_DEFAULTS
+except ImportError:
+    EMERGENCY_DATA = {}
+    COUNTRY_DEFAULTS = {}
+
 def get_emergency_info(city: str, country: str) -> dict:
     """
-    Fetches emergency contact numbers for a specific location using Relevance AI.
+    Fetches emergency contact numbers. Uses local data first, then Relevance AI.
     """
+    # 1. Check Local City Data
+    if city in EMERGENCY_DATA:
+        return EMERGENCY_DATA[city]
+        
+    # 2. Check Local Country Data (if city not found)
+    # We need the country code (e.g., 'AU') but 'country' arg might be 'Australia' or 'AU'
+    # The frontend sends 'AU' (cca2 code).
+    if country in COUNTRY_DEFAULTS:
+        return COUNTRY_DEFAULTS[country]
+
     try:
         url = f"https://api-{RELEVANCE_REGION}.stack.tryrelevance.com/latest/studios/{TOOL_ID}/trigger"
         

@@ -6,7 +6,7 @@
     <title>Respiratory Support - BreatheAI</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="icon" href="{{ url_for('static', filename='assets/favicon.jpg') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=7">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=9">
 
 </head>
 <body>
@@ -55,13 +55,7 @@
             <!-- 3. Home Oxygen Providers -->
             <div class="support-card">
                 <h2>🫁 Home Oxygen</h2>
-                <p style="color: #94a3b8; margin-bottom: 1.5rem; font-size: 0.95rem;">Verified providers for emergency oxygen.</p>
-                <ul class="tips-list" id="oxygen-list">
-                    <!-- Dynamic Content -->
-                    <li style="text-align: center; padding: 2rem; color: #64748b;">
-                        Searching for local providers...
-                    </li>
-                </ul>
+                <ul class="tips-list" id="oxygen-list"></ul>
                 <a href="https://www.google.com/maps/search/oxygen+cylinder+supplier+near+me" target="_blank" class="action-btn btn-outline" style="margin-top: 1rem;">
                     <span>🔎 Search Local Suppliers</span>
                 </a>
