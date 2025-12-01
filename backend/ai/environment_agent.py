@@ -1,5 +1,6 @@
 import os
 import requests
+import random
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -103,8 +104,41 @@ def get_coordinates(city: str, country_code: str = None) -> list:
         return []
 
 def get_micro_aqi(lat: float, lon: float) -> list:
-    """Fetches micro-zone AQI data (Placeholder)."""
-    return []
+    """Generates simulated micro-zone AQI data."""
+    micro_data = []
+    try:
+        base_lat = float(lat)
+        base_lon = float(lon)
+        
+        for _ in range(8):
+            # Random offset within ~2km
+            lat_offset = random.uniform(-0.02, 0.02)
+            lon_offset = random.uniform(-0.02, 0.02)
+            
+            aqi = random.randint(50, 350)
+            
+            zone_type = random.choice([
+                "Traffic Junction", "Industrial Zone", "Residential Park", 
+                "Construction Site", "Market Area", "School Zone"
+            ])
+            
+            risk = "Moderate"
+            if aqi > 300: risk = "Hazardous"
+            elif aqi > 200: risk = "Very Unhealthy"
+            elif aqi > 150: risk = "Unhealthy"
+            elif aqi > 100: risk = "Sensitive Groups"
+            
+            micro_data.append({
+                "lat": base_lat + lat_offset,
+                "lon": base_lon + lon_offset,
+                "aqi": aqi,
+                "type": zone_type,
+                "risk": risk
+            })
+            
+        return micro_data
+    except Exception:
+        return []
 
 def get_aqi_forecast(lat: float, lon: float) -> list:
     """Fetches 5-day AQI forecast."""

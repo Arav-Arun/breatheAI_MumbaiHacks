@@ -1147,22 +1147,158 @@ footer {
     }
 }
 
-/* Support Button */
-.support-btn {
-    display: inline-block;
-    padding: 0.8rem 1.5rem;
-    background: rgba(220, 38, 38, 0.2);
-    border: 1px solid rgba(220, 38, 38, 0.4);
-    border-radius: 50px;
-    color: #fca5a5;
-    text-decoration: none;
-    font-weight: 600;
-    transition: all 0.3s ease;
+/* Support Page Styles - Premium Redesign */
+.emergency-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding-top: 2rem;
 }
 
-.support-btn:hover {
-    background: rgba(220, 38, 38, 0.4);
-    color: white;
+.emergency-title {
+    background: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 3rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.75rem;
+    text-shadow: 0 10px 30px rgba(239, 68, 68, 0.2);
+}
+
+.emergency-subtitle {
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+    font-weight: 400;
+    opacity: 0.9;
+}
+
+.support-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    max-width: 800px;
+    width: 100%;
+    margin: 0 auto;
+    padding-bottom: 6rem;
+}
+
+.support-card {
+    background: rgba(30, 41, 59, 0.4);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    padding: 2rem;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.support-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.2);
+    border-color: rgba(255, 255, 255, 0.15);
+    background: rgba(30, 41, 59, 0.5);
+}
+
+.support-card h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--text-primary);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+.action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 1.2rem;
+    border-radius: 18px;
+    font-weight: 600;
+    text-decoration: none;
+    margin-bottom: 1rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 1.05rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.action-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2);
+    filter: brightness(1.1);
+}
+
+.action-btn:active {
+    transform: translateY(0);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    box-shadow: 0 8px 20px rgba(239, 68, 68, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-outline {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    backdrop-filter: blur(10px);
+}
+
+.btn-outline:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Pulsing animation for emergency button */
+@keyframes pulse-red {
+    0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+.btn-pulse {
+    animation: pulse-red 2s infinite;
+}
+
+.tips-list {
+    list-style: none;
+    padding: 0;
+}
+
+.tips-list li {
+    padding: 1.2rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    margin-bottom: 0.75rem;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    transition: background 0.2s ease;
+}
+
+.tips-list li:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.tips-list li:last-child { margin-bottom: 0; }
+.tips-list strong { color: var(--text-primary); font-weight: 600; display: block; margin-bottom: 0.25rem; }
+
+@media (max-width: 768px) {
+    .emergency-title { font-size: 2.25rem; }
+    .support-card { padding: 1.5rem; }
+    .action-btn { padding: 1rem; }
 }
