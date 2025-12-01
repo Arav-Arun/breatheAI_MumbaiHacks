@@ -6,19 +6,19 @@ A comprehensive agentic AI system designed to help individuals navigate India's 
 
 | Landing & Dashboard | Real-time Analysis |
 |:---:|:---:|
-| ![Landing](assets/screenshot1.png) | ![Analysis](assets/screenshot2.png) |
+| ![Landing](frontend/static/assets/screenshot1.png) | ![Analysis](frontend/static/assets/screenshot2.png) |
 
 | Advanced Charts | Micro-Zone Map |
 |:---:|:---:|
-| ![Charts](assets/screenshot3.png) | ![Map](assets/screenshot4.png) |
+| ![Charts](frontend/static/assets/screenshot3.png) | ![Map](frontend/static/assets/screenshot4.png) |
 
 | Local News | News Filtering |
 |:---:|:---:|
-| ![News Widget](assets/screenshot5.png) | ![News Page](assets/screenshot6.png) |
+| ![News Widget](frontend/static/assets/screenshot5.png) | ![News Page](frontend/static/assets/screenshot6.png) |
 
 | Respiratory Support Directory |
 |:---:|
-| ![Support Page](assets/screenshot7.png) |
+| ![Support Page](frontend/static/assets/screenshot7.png) |
 
 
 ## 🎯 Features

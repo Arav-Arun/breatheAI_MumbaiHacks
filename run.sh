@@ -1,37 +1,24 @@
 #!/bin/bash
 
-# BREATHAI Startup Script
-echo "🌬️ Starting BREATHAI..."
-echo ""
+# Setup and run script
 
-# Check if .env exists
+# Check for .env
 if [ ! -f .env ]; then
-    echo "⚠️  Warning: .env file not found"
-    echo "📝 Creating .env from .env.example..."
+    echo "Creating .env from example..."
     cp .env.example .env 2>/dev/null || echo "Please create .env file manually"
-    echo ""
-    echo "ℹ️  Note: The app will work with mock data if API keys are not set"
-    echo ""
 fi
 
-# Check if virtual environment exists
+# Setup venv if needed
 if [ ! -d "venv" ]; then
-    echo "📦 Creating virtual environment..."
+    echo "Creating virtual environment..."
     python3 -m venv venv
-    echo "✅ Virtual environment created"
-    echo ""
 fi
 
-# Activate virtual environment
 source venv/bin/activate
 
-# Install dependencies
-echo "📥 Installing dependencies..."
+# Install deps
+echo "Installing dependencies..."
 pip install -q -r requirements.txt
 
-echo ""
-echo "🚀 Starting Flask app..."
-echo ""
-
+echo "Starting server..."
 python backend/app.py
-

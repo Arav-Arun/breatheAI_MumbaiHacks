@@ -10,7 +10,6 @@ AQI_API_KEY = os.getenv("AQI_API_KEY")
 def calculate_aqi(pm25: float) -> int:
     """
     Calculates AQI based on PM2.5 concentration using US EPA standards.
-    Formula: Ip = [(Ihi - Ilo) / (BPhi - BPlo)] * (Cp - BPlo) + Ilo
     """
     c = round(pm25, 1)
     
@@ -32,9 +31,7 @@ def calculate_aqi(pm25: float) -> int:
         return 500
 
 def get_environment_data(lat: float, lon: float) -> dict:
-    """
-    Fetches weather and air quality data for a given latitude and longitude.
-    """
+    """Fetches weather and air quality data."""
     try:
         weather_url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={OPENWEATHER_API_KEY}&units=metric"
         aqi_url = f"http://api.openweathermap.org/data/2.5/air_pollution?lat={lat}&lon={lon}&appid={OPENWEATHER_API_KEY}"
@@ -53,10 +50,8 @@ def get_environment_data(lat: float, lon: float) -> dict:
         components = aqi_record.get('components', {})
         pm25 = components.get('pm2_5', 0)
         
-        # Calculate accurate AQI
         overall_aqi = calculate_aqi(pm25)
         
-        # Format pollutants
         pollutants = {
             "PM2.5": {"concentration": components.get("pm2_5", 0)},
             "PM10": {"concentration": components.get("pm10", 0)},
@@ -81,9 +76,7 @@ def get_environment_data(lat: float, lon: float) -> dict:
         raise Exception(f"API Request Error: {str(e)}")
 
 def get_coordinates(city: str, country_code: str = None) -> list:
-    """
-    Fetches coordinates for a city using OpenWeatherMap Geocoding API.
-    """
+    """Fetches coordinates for a city."""
     try:
         query = f"{city},{country_code}" if country_code else city
         geo_url = f"http://api.openweathermap.org/geo/1.0/direct?q={query}&limit=5&appid={OPENWEATHER_API_KEY}"
@@ -109,33 +102,25 @@ def get_coordinates(city: str, country_code: str = None) -> list:
         return []
 
 def get_micro_aqi(lat: float, lon: float) -> list:
-    """
-    Fetches micro-zone AQI data.
-    Currently returns empty list as no granular API is available.
-    """
+    """Fetches micro-zone AQI data (Placeholder)."""
     return []
 
 def get_aqi_forecast(lat: float, lon: float) -> list:
-    """
-    Fetches 5-day AQI forecast using OpenWeatherMap Air Pollution API.
-    Aggregates hourly data to daily max AQI.
-    """
+    """Fetches 5-day AQI forecast."""
     try:
         url = f"http://api.openweathermap.org/data/2.5/air_pollution/forecast?lat={lat}&lon={lon}&appid={OPENWEATHER_API_KEY}"
         response = requests.get(url)
         response.raise_for_status()
         data = response.json()
         
-        # Process hourly data into daily max AQI
         daily_forecast = {}
         from datetime import datetime
         
         for item in data.get('list', []):
             dt = datetime.fromtimestamp(item['dt'])
             date_str = dt.strftime('%Y-%m-%d')
-            day_name = dt.strftime('%a') # Mon, Tue...
+            day_name = dt.strftime('%a')
             
-            # Calculate accurate AQI from PM2.5
             pm25 = item['components']['pm2_5']
             aqi_val = calculate_aqi(pm25)
             
@@ -144,20 +129,15 @@ def get_aqi_forecast(lat: float, lon: float) -> list:
             else:
                 daily_forecast[date_str]["max_aqi"] = max(daily_forecast[date_str]["max_aqi"], aqi_val)
         
-        # Return first 5 days
         return list(daily_forecast.values())[:5]
     except requests.RequestException:
         return []
 
 def get_aqi_history(lat: float, lon: float) -> list:
-    """
-    Fetches 7-day AQI history using OpenWeatherMap Air Pollution History API.
-    """
+    """Fetches 7-day AQI history."""
     try:
         from datetime import datetime, timedelta
-        import time
         
-        # Calculate timestamps for the last 7 days
         end_dt = datetime.now()
         start_dt = end_dt - timedelta(days=7)
         
@@ -169,7 +149,6 @@ def get_aqi_history(lat: float, lon: float) -> list:
         response.raise_for_status()
         data = response.json()
         
-        # Process hourly data into daily max AQI
         daily_history = {}
         
         for item in data.get('list', []):
@@ -177,7 +156,6 @@ def get_aqi_history(lat: float, lon: float) -> list:
             date_str = dt.strftime('%Y-%m-%d')
             day_name = dt.strftime('%a')
             
-            # Calculate accurate AQI from PM2.5
             pm25 = item['components']['pm2_5']
             aqi_val = calculate_aqi(pm25)
             
@@ -186,7 +164,6 @@ def get_aqi_history(lat: float, lon: float) -> list:
             else:
                 daily_history[date_str]["max_aqi"] = max(daily_history[date_str]["max_aqi"], aqi_val)
         
-        # Return values sorted by date
         sorted_history = sorted(daily_history.values(), key=lambda x: x['date'])
         return sorted_history
         

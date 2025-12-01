@@ -4,8 +4,7 @@ from urllib.parse import quote
 
 def get_pollution_news(city: str, limit: int = 5) -> list:
     """
-    Fetches latest air pollution news for a specific city using Google News RSS.
-    Returns a list of dictionaries with title, link, source, and date.
+    Fetches latest air pollution news for a city using Google News RSS.
     """
     try:
         if not city:
@@ -18,11 +17,9 @@ def get_pollution_news(city: str, limit: int = 5) -> list:
         response = requests.get(url, timeout=5)
         response.raise_for_status()
         
-        # Parse XML
         root = ET.fromstring(response.content)
         
         news_items = []
-        # Iterate over items (limit to specified number)
         for item in root.findall('./channel/item')[:limit]:
             title = item.find('title').text if item.find('title') is not None else "No Title"
             link = item.find('link').text if item.find('link') is not None else "#"
