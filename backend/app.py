@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, send_from_directory
 from dotenv import load_dotenv
 import os
 import sys
@@ -18,6 +18,11 @@ app = Flask(__name__,
             static_folder='../frontend/static')
 
 # --- Routes ---
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, '../frontend/static/assets'),
+                               'favicon.jpg', mimetype='image/jpeg')
 
 @app.route("/")
 def home():
