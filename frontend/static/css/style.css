@@ -486,27 +486,26 @@ input:checked + .slider:before {
 
 /* Pollutant Radar: Top Left, 2x2 */
 .card-radar {
-    grid-column: span 2;
-    grid-row: span 2;
-    min-height: 384px; /* 180px + 180px + 1.5rem gap to match right column */
+    grid-column: span 1;
+    min-height: 250px;
 }
 
 /* AQI Gauge: Top Right, 2x1 */
 .card-aqi {
-    grid-column: span 2;
-    min-height: 180px;
+    grid-column: span 1;
+    min-height: 250px;
 }
 
 /* Metrics Chart: Middle Right, 2x1 */
 .card-metrics {
     grid-column: span 2;
-    min-height: 180px;
+    min-height: 250px;
 }
 
 /* Small Cards Row: Bottom, 1x1 each */
 .card-small {
     grid-column: span 1;
-    min-height: 150px;
+    min-height: 130px;
     text-align: center;
     justify-content: center;
     align-items: center;
