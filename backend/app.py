@@ -85,6 +85,15 @@ def get_env(lat, lon):
     except Exception as e:
         news = []
 
+    # Emergency Info
+    emergency_info = {}
+    try:
+        city = env_data.get('city', 'India')
+        country = env_data.get('country', 'IN')
+        emergency_info = get_emergency_info(city, country)
+    except Exception as e:
+        emergency_info = {"error": str(e)}
+
     return jsonify({
         "environment": env_data,
         "micro_aqi": micro_data,
@@ -93,7 +102,10 @@ def get_env(lat, lon):
         "forecast_analysis": forecast_analysis,
         "news": news,
         "health_advice": health,
-        "daily_plan": daily_plan
+        "news": news,
+        "health_advice": health,
+        "daily_plan": daily_plan,
+        "emergency_info": emergency_info
     })
 
 application = app

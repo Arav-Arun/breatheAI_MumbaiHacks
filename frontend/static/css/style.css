@@ -488,19 +488,19 @@ input:checked + .slider:before {
 .card-radar {
     grid-column: span 2;
     grid-row: span 2;
-    min-height: 400px;
+    min-height: 384px; /* 180px + 180px + 1.5rem gap to match right column */
 }
 
 /* AQI Gauge: Top Right, 2x1 */
 .card-aqi {
     grid-column: span 2;
-    min-height: 200px;
+    min-height: 180px;
 }
 
 /* Metrics Chart: Middle Right, 2x1 */
 .card-metrics {
     grid-column: span 2;
-    min-height: 200px;
+    min-height: 180px;
 }
 
 /* Small Cards Row: Bottom, 1x1 each */
@@ -737,7 +737,7 @@ input:checked + .slider:before {
     
     /* Chart Adjustments */
     .card-radar {
-        min-height: 350px;
+        min-height: 300px;
     }
 
     .card-map {
@@ -745,7 +745,7 @@ input:checked + .slider:before {
     }
 
     .card-aqi, .card-metrics {
-        min-height: 250px;
+        min-height: 180px;
     }
 
     .card {
@@ -798,12 +798,34 @@ input:checked + .slider:before {
     }
 
     .footer-icons {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-        gap: 0.3rem;
+        gap: 0.5rem;
     }
+}
+
+/* Emergency Items */
+.emergency-item {
+    text-align: center;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 0.8rem;
+    border-radius: 12px;
+    flex: 1;
+    min-width: 80px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.emerg-label {
+    font-size: 0.8rem;
+    color: #fca5a5;
+    text-transform: uppercase;
+    margin-bottom: 0.3rem;
+    font-weight: 600;
+}
+
+.emerg-val {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #fff;
+}
 
     .footer-logo-text {
         font-size: 0.9rem;

@@ -145,12 +145,12 @@ async function fetchData(position) {
             return;
         }
 
+        hideLoading();
+        document.getElementById('dashboard').style.display = 'grid';
         updateDashboard(data);
     } catch (e) {
         alert("Network Error: " + e);
-    } finally {
         hideLoading();
-        document.getElementById('dashboard').style.display = 'grid';
     }
 }
 
@@ -390,7 +390,7 @@ function updateDashboard(data) {
         if (showMoreBtn) {
             const city = data.city || 'India';
             showMoreBtn.href = `/news?city=${encodeURIComponent(city)}`;
-            showMoreBtn.target = "_blank"; // Open in new tab
+            showMoreBtn.target = "_self"; // Open in same tab
         }
     } else {
         newsContainer.innerHTML = '<div style="color: rgba(255,255,255,0.5);">No recent news found for this location.</div>';
@@ -402,6 +402,15 @@ function updateDashboard(data) {
         const city = env.city || 'India';
         const country = env.country || '';
         supportBtn.href = `/support?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}`;
+    }
+
+    // Update Emergency Numbers
+    if (data.emergency_info) {
+        const em = data.emergency_info;
+        document.getElementById('emerg-ambulance').innerText = em.ambulance || "--";
+        document.getElementById('emerg-police').innerText = em.police || "--";
+        document.getElementById('emerg-general').innerText = em.general || "--";
+        document.getElementById('emerg-notes').innerText = em.notes || "Emergency contacts for this location.";
     }
 
     // Planner Agent
