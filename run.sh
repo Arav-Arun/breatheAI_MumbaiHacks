@@ -18,7 +18,7 @@ source venv/bin/activate
 
 # Install deps
 echo "Installing dependencies..."
-pip install -q -r requirements.txt
+# requirements.txt removed
 
 echo "Starting server..."
-python backend/app.py
+python app.py

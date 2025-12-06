@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Respiratory Support - BreatheAI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" href="{{ url_for('serve_assets', filename='favicon.jpg') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=9">
+    <script defer src="/_vercel/insights/script.js"></script>
+</head>
+<body>
+    <div class="container">
+        <a href="#" onclick="history.back(); return false;" class="back-button">← Back</a>
+        
+        <header class="emergency-header">
+            <h1 class="emergency-title">Respiratory Support</h1>
+            <p class="emergency-subtitle">Emergency resources & immediate help</p>
+        </header>
+
+        <div class="support-grid">
+            <!-- 1. Immediate Help (Maps) -->
+            <div class="support-card" style="border-color: rgba(239, 68, 68, 0.3);">
+                <h2 style="color: #fca5a5;">🚑 Find Help Now</h2>
+                <p style="color: #94a3b8; margin-bottom: 1.5rem; font-size: 0.95rem;">Locate nearest medical facilities using live maps.</p>
+                
+                <div class="action-grid">
+                    <a href="https://www.google.com/maps/search/pharmacy+with+inhalers+near+me" target="_blank" class="action-btn btn-primary btn-pulse">
+                        <span>💊 Pharmacies</span>
+                    </a>
+                    <a href="https://www.google.com/maps/search/nebulisation+center+near+me" target="_blank" class="action-btn btn-secondary">
+                        <span>💨 Nebulisation</span>
+                    </a>
+                    <a href="https://www.google.com/maps/search/pulmonologist+near+me" target="_blank" class="action-btn btn-outline">
+                        <span>👨‍⚕️ Pulmonologist</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 2. Emergency Contacts -->
+            <div class="support-card">
+                <h2>📞 Emergency Contacts</h2>
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <a href="#" id="ambulance-btn" class="action-btn" style="background: #dc2626; color: white; font-size: 1.2rem; pointer-events: none; opacity: 0.7;">
+                        🚑 Loading...
+                    </a>
+                    <div style="background: rgba(255,255,255,0.03); padding: 1.2rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05);">
+                        <strong style="display: block; color: #cbd5e1; margin-bottom: 0.4rem; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">National Emergency</strong>
+                        <span id="national-num" style="font-size: 2rem; font-weight: 800; color: white; letter-spacing: -1px;">...</span>
+                    </div>
+                    <div id="emergency-notes"></div>
+                </div>
+            </div>
+
+            <!-- 3. Home Oxygen Providers -->
+            <div class="support-card">
+                <h2>🫁 Home Oxygen</h2>
+                <ul class="tips-list" id="oxygen-list"></ul>
+                <a href="https://www.google.com/maps/search/oxygen+cylinder+supplier+near+me" target="_blank" class="action-btn btn-outline" style="margin-top: 1rem;">
+                    <span>🔎 Search Local Suppliers</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <script>
+        // Parse city/country from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const city = urlParams.get('city');
+        const country = urlParams.get('country') || '';
+
+        if (city) {
+            // Update Header
+            const subtitle = document.querySelector('.emergency-subtitle');
+            if (subtitle) {
+                subtitle.textContent = `Emergency resources in ${city} & immediate help`;
+            }
+
+            // Update Google Maps Links
+            const mapLinks = document.querySelectorAll('a[href^="https://www.google.com/maps/search/"]');
+            mapLinks.forEach(link => {
+                let href = link.getAttribute('href');
+                if (href.includes('near+me')) {
+                    href = href.replace('near+me', `in+${encodeURIComponent(city)}`);
+                } else {
+                    href += `+in+${encodeURIComponent(city)}`;
+                }
+                link.setAttribute('href', href);
+            });
+            
+            // Fetch Emergency Numbers
+            fetch(`/api/support?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}`)
+                .then(res => res.json())
+                .then(data => {
+                    // 1. Ambulance
+                    const ambulanceBtn = document.getElementById('ambulance-btn');
+                    if (data.ambulance) {
+                        ambulanceBtn.href = `tel:${data.ambulance}`;
+                        ambulanceBtn.innerHTML = `🚑 Call Ambulance (${data.ambulance})`;
+                        ambulanceBtn.style.pointerEvents = 'auto';
+                        ambulanceBtn.style.opacity = '1';
+                    } else {
+                        ambulanceBtn.innerHTML = `🚑 Ambulance Not Found`;
+                    }
+                    
+                    // 2. National Emergency
+                    const nationalNum = document.getElementById('national-num');
+                    if (data.general || data.police) {
+                        nationalNum.textContent = data.general || data.police;
+                    } else {
+                        nationalNum.textContent = "112"; // Fallback
+                    }
+                    
+                    // 3. Notes
+                    const notesDiv = document.getElementById('emergency-notes');
+                    if (data.notes) {
+                        notesDiv.innerHTML = `
+                            <div style="margin-top: 1rem; padding: 1rem; background: rgba(59, 130, 246, 0.1); border-radius: 12px; border: 1px solid rgba(59, 130, 246, 0.2);">
+                                <strong style="color: #60a5fa; display: block; margin-bottom: 0.25rem;">ℹ️ Local Advice</strong>
+                                <span style="color: #cbd5e1; font-size: 0.9rem; line-height: 1.5;">${data.notes}</span>
+                            </div>
+                        `;
+                    }
+
+                    // 4. Oxygen Providers
+                    const oxygenList = document.getElementById('oxygen-list');
+                    oxygenList.innerHTML = ''; // Clear loading
+                    
+                    if (country === 'IN') {
+                        oxygenList.innerHTML = `
+                            <li>
+                                <strong>Apollo HomeCare</strong><br>
+                                <a href="tel:18605001066" style="color: #fff; text-decoration: underline;">1860 500 1066</a>
+                            </li>
+                            <li>
+                                <strong>Portea Medical</strong><br>
+                                <a href="tel:18001212323" style="color: #fff; text-decoration: underline;">1800 121 2323</a>
+                            </li>
+                        `;
+                    } else {
+                        // If no specific providers, we just show the search button (which is outside this list)
+                        // So we leave the list empty or hide it
+                        oxygenList.style.display = 'none';
+                    }
+                })
+                .catch(err => {
+                    console.error("Failed to fetch emergency info:", err);
+                    document.getElementById('ambulance-btn').innerHTML = "⚠️ Error loading data";
+                });
+        }
+    </script>
+</body>
+</html>
