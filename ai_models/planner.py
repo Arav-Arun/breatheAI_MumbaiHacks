@@ -1,16 +1,88 @@
-"""
-Planner Agent - Generates actionable health plans based on AQI and risk levels using Gemini.
-"""
-import re
-
-def generate_daily_plan(env: dict, health_advice: str) -> dict:
+def _get_comprehensive_data(env: dict) -> dict:
     """
-    Generates a personalized daily plan using pure logic (Instant).
-    No external AI calls to ensure maximum speed.
+    Returns structured health advice based on local expert rules.
+    Used by both the text generator and the daily planner fallback.
     """
     aqi = env.get('aqi', 0)
     
-    # --- 1. SAFETY METRICS ---
+    # Determine Risk Level
+    if aqi > 150: risk_level = "Hazardous"
+    elif aqi > 100: risk_level = "Unhealthy"
+    elif aqi > 50: risk_level = "Moderate"
+    else: risk_level = "Good"
+    
+    # --- Content Templates ---
+    if risk_level == "Hazardous":
+        exec_summary = f"Air quality is critical (AQI {aqi}); strict indoor protocols are required to prevent acute respiratory distress."
+        risks = """
+*   **Acute Inflammation:** High PM2.5 loads can trigger immediate lung inflammation.
+*   **Cardiovascular Stress:** Fine particles enter the bloodstream, potentially raising blood pressure.
+*   **Cognitive Fog:** Reduced oxygen exchange efficiency may lead to headaches.
+"""
+        morning = "Avoid all outdoor exercise. Keep windows hermetically sealed. Use a wet mop to clean floors."
+        afternoon = "Minimize any transit. Drink hot water. Place spider plants indoors."
+        evening = "Sleep with an air purifier on. Do not open windows. Steam inhalation is recommended."
+        
+    elif risk_level == "Unhealthy":
+        exec_summary = f"AQI is {aqi}; sensitive groups must avoid outdoor exposure, and everyone should limit exertion."
+        risks = """
+*   **Respiratory Irritation:** Likely throat scratching and coughing.
+*   **Asthma Triggers:** High potential for triggering asthma attacks.
+"""
+        morning = "Skip the jog. Yoga indoors is safe. Vitamin C (Citrus) helps build resistance."
+        afternoon = "Stay indoors during lunch. Drink water with lemon. Avoid aerosol sprays."
+        evening = "Elevate your head slightly while sleeping if congested. Neti pot rinse is good."
+
+    elif risk_level == "Moderate":
+        exec_summary = f"Air quality is acceptable (AQI {aqi}); outdoor activity is okay, but sensitive people should be cautious."
+        risks = """
+*   **Minor Irritation:** Possible for extremely sensitive individuals.
+"""
+        morning = "Light jog is fine. Plan route through parks. Balanced breakfast."
+        afternoon = "Normal activities. Green tea is good. Keep indoor humidity at 40-50%."
+        evening = "Normal routine. Ensure bedroom is dust-free. Safe to open windows for short time."
+
+    else: # GOOD
+        exec_summary = f"Air quality is excellent (AQI {aqi}); enjoy the outdoors!"
+        risks = """
+*   **None:** The air is clean and healthy.
+"""
+        morning = "Go for a run! Open windows to flush stale air. Perfect for outdoor yoga."
+        afternoon = "Spend time outside. Cognitive function is optimal. Have an outdoor lunch."
+        evening = "Sleep with windows open (if quiet). Deep breathing exercises recommended."
+
+    return {
+        "assessment": f"### Current Status: AQI {aqi} ({risk_level})\n\n### Executive Summary\n{exec_summary}\n\n### Key Risks\n{risks}",
+        "morning": morning,
+        "afternoon": afternoon,
+        "evening": evening
+    }
+
+def generate_comprehensive_plan(env: dict) -> str:
+    """
+    (Legacy Wrapper) Returns full markdown string.
+    """
+    data = _get_comprehensive_data(env)
+    return f"""{data['assessment']}
+
+### Morning Plan
+{data['morning']}
+
+### Afternoon Plan
+{data['afternoon']}
+
+### Evening Plan
+{data['evening']}
+"""
+
+def generate_daily_plan(env: dict, ai_data: dict = None) -> dict:
+    """
+    Generates a personalized daily plan.
+    Now uses robust fallback if ai_data is missing.
+    """
+    aqi = env.get('aqi', 0)
+    
+    # --- 1. LOCAL LOGIC: SAFETY METRICS ---
     if aqi > 300: mask_rec = "N95 (Mandatory)"
     elif aqi > 200: mask_rec = "N95 (Recommended)"
     elif aqi > 150: mask_rec = "Mask Required"
@@ -21,21 +93,21 @@ def generate_daily_plan(env: dict, health_advice: str) -> dict:
     elif aqi > 150: hydration = "3 Liters"
     else: hydration = "2.5 Liters"
 
-    # --- 2. SCHEDULE GENERATION (Rule-Based Paragraphs) ---
-    # We prioritize the detailed paragraphs the user requested.
+    # --- 2. SCHEDULE GENERATION ---
+    morning_txt = "Advice unavailable."
+    afternoon_txt = "Advice unavailable."
+    evening_txt = "Advice unavailable."
     
-    if aqi > 150:
-        morning_txt = "**Avoid outdoor exercise.**\n\nThe air quality is currently poor, with high levels of particulate matter. Engaging in strenuous activity outdoors can lead to deep inhalation of these pollutants, causing respiratory stress. Instead, opt for indoor activities like yoga or light stretching in a filtered environment. Keep windows closed to prevent pollutant entry."
-        afternoon_txt = "**Stay indoors and protect yourself.**\n\nPollution levels often peak or remain high during the day. If you must go out, wearing an N95 mask is highly recommended to filter out harmful particles. Use an air purifier if available in your workspace or home to maintain healthy indoor air quality."
-        evening_txt = "**No evening walks.**\n\nPollutants often settle near the ground at night due to cooling temperatures. Avoid evening walks to prevent exposure. Run an air purifier in your bedroom to ensure you sleep in clean air, which is crucial for overnight recovery."
-    elif aqi > 100:
-        morning_txt = "**Light activity only.**\n\nAir quality is moderate but sensitive groups should be careful. A short walk is okay, but avoid heavy running. Wear a mask if you have asthma or other respiratory conditions."
-        afternoon_txt = "**Monitor conditions.**\n\nKeep an eye on the AQI. If it rises, move indoors. Ensure you are drinking plenty of water to help your body cope with any inhaled particulates."
-        evening_txt = "**Limit outdoor exposure.**\n\nIt's best to relax indoors this evening. If you do go out, keep it brief. Ensure your sleeping area is well-ventilated if the outside air improves, otherwise keep windows shut."
+    if ai_data:
+        morning_txt = ai_data.get("morning_plan", "No specific morning plan.")
+        afternoon_txt = ai_data.get("afternoon_plan", "No specific afternoon plan.")
+        evening_txt = ai_data.get("evening_plan", "No specific evening plan.")
     else:
-        morning_txt = "**Good for outdoor activities.**\n\nThe air quality is relatively good this morning. It is a great time for a jog or a brisk walk in the park. Fresh air can boost your energy levels and improve mental clarity. Ensure you ventilate your home by opening windows to let fresh air circulate."
-        afternoon_txt = "**Moderate activity allowed.**\n\nWhile the air is acceptable, continue to monitor changes. Stay hydrated to help your body flush out any toxins. It is safe to keep windows open for cross-ventilation, but be mindful if you live near heavy traffic."
-        evening_txt = "**Safe for evening strolls.**\n\nThe evening air is pleasant and safe. A post-dinner walk can aid digestion and help you relax. Ensure good sleep hygiene by keeping your bedroom well-ventilated and comfortable."
+        # Fallback: Use structural data directly
+        data = _get_comprehensive_data(env)
+        morning_txt = data['morning']
+        afternoon_txt = data['afternoon']
+        evening_txt = data['evening']
 
     return {
         "mask_level": mask_rec,
@@ -52,9 +124,7 @@ def analyze_forecast(forecast_data):
     if not forecast_data:
         return {}
         
-    # Find day with max AQI
     worst_item = max(forecast_data, key=lambda x: x['max_aqi'])
-    # Find day with min AQI
     best_item = min(forecast_data, key=lambda x: x['max_aqi'])
     
     return {

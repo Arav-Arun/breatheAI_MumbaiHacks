@@ -10,7 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=9">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=9">
     <script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body class="landing-mode">
@@ -153,6 +153,30 @@
             <!-- 5. Micro-Zone Map (Full Width) -->
 
 
+            <!-- 4. Cigarette Equivalent (New Feature) -->
+            <div class="card card-cigarette">
+                <div class="card-label">Daily Exposure</div>
+                <div class="cig-container">
+                    <div class="cig-icon">🚬</div>
+                    <div class="cig-data">
+                        <div class="cig-value" id="cig-value">--</div>
+                        <div class="cig-sub">Cigarettes Inhaled</div>
+                    </div>
+                </div>
+                <div class="cig-disclaimer">≈ PM2.5 Equivalent</div>
+            </div>
+
+            <!-- 5. Source Analysis (New Feature) -->
+            <div class="card card-sources" style="grid-column: 1 / -1; min-height: 200px;">
+                <div class="card-label">🏭 Pollution Source Breakdown (AI Analysis)</div>
+                <p id="source-narrative" style="color: #94a3b8; margin-bottom: 1rem; font-style: italic;">
+                    Analyzing local emission sources...
+                </p>
+                <div id="sources-container" class="sources-grid">
+                    <!-- Dynamic Bars Here -->
+                </div>
+            </div>
+
             <!-- 5.6 Local News (Full Width) -->
             <div class="card card-news" style="grid-column: 1 / -1; min-height: 250px;">
                 <div class="card-label">📰 Local Air Quality News</div>
@@ -251,6 +275,6 @@
     </div>
     </div>
 
-    <script src="{{ url_for('static', filename='script.js') }}?v=9" defer></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}?v=9" defer></script>
 </body>
 </html>

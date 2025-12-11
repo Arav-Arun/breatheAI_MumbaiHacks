@@ -31,6 +31,14 @@ def calculate_aqi(pm25: float) -> int:
     else:
         return 500
 
+def calculate_cigarettes(pm25: float) -> float:
+    """
+    Calculates cigarette equivalent based on Berkeley Earth rule of thumb.
+    1 cigarette approx 22 ug/m3 of PM2.5 per day.
+    """
+    if pm25 <= 0: return 0.0
+    return round(pm25 / 22.0, 1)
+
 def get_waqi_data(lat: float, lon: float) -> dict:
     """Fetches AQI data from WAQI API."""
     try:
@@ -77,7 +85,8 @@ def get_owm_pollution(lat: float, lon: float) -> dict:
         print(f"OWM Pollution Error: {e}")
         return {}
 
-def get_environment_data(lat: float, lon: float) -> dict:
+
+def get_environment_data(lat: float, lon: float, override_city: str = None) -> dict:
     """Fetches weather and air quality data."""
     try:
         # 1. Weather Data (OpenWeatherMap)
@@ -116,12 +125,18 @@ def get_environment_data(lat: float, lon: float) -> dict:
                 "pollutants": {k: {"concentration": 0} for k in ["PM2.5", "PM10", "NO2", "SO2", "O3", "CO"]}
             }
 
+        # Determine City Name
+        # Priority: Override > WAQI > OWM
+        city_name = override_city
+        if not city_name:
+             city_name = waqi_data.get('city', {}).get('name', weather_data.get("name"))
+
         return {
             "temperature": weather_data.get("main", {}).get("temp"),
             "humidity": weather_data.get("main", {}).get("humidity"),
             "description": weather_data.get("weather", [{}])[0].get("description"),
             "icon": weather_data.get("weather", [{}])[0].get("icon"),
-            "city": waqi_data.get('city', {}).get('name', weather_data.get("name")), 
+            "city": city_name, 
             "country": weather_data.get("sys", {}).get("country"),
             "aqi": aqi_data['aqi'],
             "pollutants": aqi_data['pollutants'],

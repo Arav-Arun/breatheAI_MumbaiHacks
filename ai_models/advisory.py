@@ -1,113 +1,102 @@
-import os
 import requests
-from dotenv import load_dotenv
+import json
+import os
 
-load_dotenv()
+# User's Gemini API Key
+GEMINI_API_KEY = "AIzaSyD3X291LCTYJZKt3-bgDXKH-mGTp7afgFo"
 
-# Relevance AI Configuration
-RELEVANCE_PROJECT = os.getenv("RELEVANCE_PROJECT")
-RELEVANCE_API_KEY = os.getenv("RELEVANCE_API_KEY")
-RELEVANCE_REGION = os.getenv("RELEVANCE_REGION", "d7b62b")
-TOOL_ID = "92f0d1e5-c44d-41c5-a05a-ae75c58941a2"
-
-def get_health_advice(env: dict) -> str:
+def get_health_advice(env: dict) -> dict:
     """
-    Generates health advice based on environmental data using Relevance AI.
+    Generates comprehensive health analysis and daily plans using Google Gemini 1.5 Flash.
+    Returns a dictionary with 'assessment', 'morning_plan', 'afternoon_plan', 'evening_plan'.
     """
+    # API URL for Google Gemini (AI Model)
     try:
-        url = f"https://api-{RELEVANCE_REGION}.stack.tryrelevance.com/latest/studios/{TOOL_ID}/trigger"
+        # We use 'gemini-1.5-flash' because it is faster and more stable than 'gemini-flash-latest'.
+        # If you see a 503 error, it means the model is overloaded or down.
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
         
+        # Headers tell the server we are sending JSON data
         headers = {
-            "Authorization": f"{RELEVANCE_PROJECT}:{RELEVANCE_API_KEY}",
             "Content-Type": "application/json"
         }
         
-        # Determine Risk Level for Context
+        # Determine Risk Level Logic (Synced with UI)
         aqi = env.get('aqi', 0)
         risk_level = "Good"
-        if aqi > 300: risk_level = "Hazardous"
-        elif aqi > 200: risk_level = "Very Unhealthy"
-        elif aqi > 150: risk_level = "Unhealthy"
-        elif aqi > 100: risk_level = "Moderate"
+        if aqi > 150: risk_level = "Hazardous"
+        elif aqi > 100: risk_level = "Unhealthy"
+        elif aqi > 50: risk_level = "Moderate"
+        else: risk_level = "Good"
         
         prompt = f"""
-        **Environmental Data:**
-        - AQI: {aqi} (Risk Level: {risk_level})
+        **Context:**
+        You are an expert environmental health scientist acting as a personal advisor.
+        
+        **Real-Time Data:**
+        - AQI: {aqi} (Status: {risk_level})
+        - Location: {env.get('city', 'Unknown')}
         - Temperature: {env.get('temperature')}°C
         - Humidity: {env.get('humidity')}%
-        - Condition: {env.get('description')}
+        - Pollutants: {env.get('pollutants')}
         
-        **Pollutant Breakdown:**
-        {env.get('pollutants')}
-
-    **Task:**
-    Provide a detailed, scientifically-backed daily health plan in markdown.
-    
-    **CRITICAL INSTRUCTION:**
-    Your advice MUST be directly derived from the AQI of {aqi} ({risk_level}).
-    - IF AQI > 150: You MUST strictly forbid outdoor strenuous exercise and recommend N95 masks.
-    - IF AQI < 100: You MUST encourage ventilation and outdoor activities.
-    - Do NOT provide generic advice that applies to all conditions. Tailor it specifically to {risk_level} air quality.
-
-    **Required Output Format:**
-
-    ### Executive Summary
-    (One sentence summary)
-
-    ### Key Risks
-    (Bullet points of main risks)
-
-    ### Morning Plan
-    (Provide a comprehensive guide for the morning. Include:
-    - **Activity**: Specific recommendations (exact times, types of exercise).
-    - **Science**: Explain the "Why" with scientific depth (e.g., "PM2.5 levels are highest at dawn due to thermal inversion").
-    - **Diet/Protection**: Specific dietary tips (e.g., antioxidants) or protective measures.
-    - **Physiology**: How the body reacts to current pollutants.
-    - **Actionable Steps**: Non-obvious tips.
-    Aim for **5-6 detailed points**.)
-
-    ### Afternoon Plan
-    (Provide a comprehensive guide for the afternoon. Include:
-    - **Work/School**: How to manage exposure during commute or work.
-    - **Physiology**: Explain how hydration helps clear toxins.
-    - **Actionable Steps**: Specific steps to improve indoor air quality.
-    - **Mental Health**: Impact of pollution on focus and mood.
-    Aim for **5-6 detailed points**.)
-
-    ### Evening Plan
-    (Provide a comprehensive guide for the evening. Include:
-    - **Sleep Hygiene**: How pollution affects sleep and what to do.
-    - **Ventilation**: Precise advice on when/if to open windows based on night-time pollution settling.
-    - **Recovery**: Evening routines to help the lungs recover.
-    - **Long-term**: Tips for long-term respiratory health.
-    Aim for **5-6 detailed points**.)
-    """
+        **CRITICAL CONSTRAINTS:**
+        1. **CONSISTENCY**: You MUST accept the AQI is {aqi} ({risk_level}). Do NOT re-calculate or hallcinate a different AQI class.
+        2. **DEPTH**: Provide scientifically rigorous analysis (e.g., mention specific physiological effects of PM2.5/NO2).
+        3. **FORMAT**: Return ONLY valid JSON.
+        
+        **JSON Structure Required:**
+        {{
+            "assessment": "A deep, 3-paragraph scientific analysis of the current air quality. Use markdown. Mention specific risks to respiratory/cardiovascular systems. NO generic advice.",
+            "morning_plan": "Specific, actionable advice for the Morning (e.g. 6AM-12PM). Mention exercise feasibility.",
+            "afternoon_plan": "Specific advice for Afternoon (e.g. 12PM-5PM). Focus on work/school/protection.",
+            "evening_plan": "Specific advice for Evening (e.g. 5PM-Sleep). Focus on sleep hygiene/ventilation.",
+            "sources": ["List", "of", "likely", "pollutant", "sources", "based", "on", "location/context"],
+            "source_narrative": "A 2-sentence explanation of WHY pollution is high (e.g. 'Stagnant winds trapping emissions...')."
+        }}
+        """
         
         payload = {
-            "params": {
-                "prompt": prompt
-            },
-            "project": RELEVANCE_PROJECT
+            "contents": [{
+                "parts": [{"text": prompt}]
+            }],
+            "generationConfig": {
+                "responseMimeType": "application/json"
+            }
         }
         
         response = requests.post(url, headers=headers, json=payload)
         response.raise_for_status()
-            
+        
         data = response.json()
+        text_response = data['candidates'][0]['content']['parts'][0]['text']
         
-        # Extract advice from the specific path
-        advice = data.get("output", {}).get("transformed", {}).get("advice")
+        # Parse JSON
+        result = json.loads(text_response)
         
-        if not advice:
-             advice = data.get("output", {}).get("advice")
+        # Post-process: Ensure consistency if AI slipped up (though JSON mode usually fix it)
+        # We will prepend the standard header to the 'assessment' part
+        header = f"### Current Status: AQI {aqi} ({risk_level})\n"
+        if "assessment" in result:
+             # Remove self-references to AQI to avoid conflict, relying on our header
+             import re
+             clean_assessment = re.sub(r'AQI\s*:?\s*\d+', '', result["assessment"], flags=re.IGNORECASE)
+             result["assessment"] = header + clean_assessment
              
-        if not advice:
-            return f"Health advice unavailable (Parse Error). Raw: {str(data)}"
-            
-        return advice
+        return result
 
     except Exception as e:
-        return f"Health advice unavailable (Error: {str(e)}). Data: {env}"
+        print(f"Gemini Error: {e}")
+        # Fallback to local planner if API fails
+        # Use structured local data so cards are NOT empty
+        from .planner import _get_comprehensive_data
+        fallback_data = _get_comprehensive_data(env)
+        return {
+            "assessment": fallback_data["assessment"],
+            "morning_plan": fallback_data["morning"],
+            "afternoon_plan": fallback_data["afternoon"],
+            "evening_plan": fallback_data["evening"]
+        }
 
 # Import local data
 try:

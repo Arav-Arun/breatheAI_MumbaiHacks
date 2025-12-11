@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pollution News - BreatheAI</title>
+    <link
+      rel="icon"
+      href="{{ url_for('serve_assets', filename='favicon.jpg') }}"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}?v=6"
+    />
+    <script defer src="/_vercel/insights/script.js"></script>
+  </head>
+  <body class="news-page">
+    <div class="container">
+      <header class="news-header">
+        <a href="#" onclick="history.back(); return false;" class="back-button"
+          >← Back to Dashboard</a
+        >
+        <h1>Local Pollution News</h1>
+        <p id="news-subtitle">Latest updates for your location</p>
+
+        <div class="filter-controls">
+          <input
+            type="text"
+            id="search-input"
+            placeholder="Search news..."
+            class="filter-input"
+          />
+          <select id="source-filter" class="filter-select">
+            <option value="all">All Sources</option>
+          </select>
+        </div>
+      </header>
+
+      <div id="loading" class="loading-spinner"></div>
+      <div id="news-grid" class="news-grid"></div>
+    </div>
+
+    <script>
+      let allNews = [];
+
+      document.addEventListener("DOMContentLoaded", async () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const city = urlParams.get("city") || "India";
+
+        document.getElementById(
+          "news-subtitle"
+        ).innerText = `Latest updates for ${city}`;
+
+        try {
+          const response = await fetch(`/api/news/${city}`);
+          allNews = await response.json();
+
+          populateSourceFilter(allNews);
+          renderNews(allNews);
+          document.getElementById("loading").style.display = "none";
+
+          // Event Listeners
+          document
+            .getElementById("search-input")
+            .addEventListener("input", filterNews);
+          document
+            .getElementById("source-filter")
+            .addEventListener("change", filterNews);
+        } catch (error) {
+          console.error("Error:", error);
+          document.getElementById("loading").innerHTML = "Failed to load news.";
+        }
+      });
+
+      function populateSourceFilter(news) {
+        const sources = new Set(news.map((item) => item.source));
+        const select = document.getElementById("source-filter");
+        sources.forEach((source) => {
+          const option = document.createElement("option");
+          option.value = source;
+          option.textContent = source;
+          select.appendChild(option);
+        });
+      }
+
+      function filterNews() {
+        const searchTerm = document
+          .getElementById("search-input")
+          .value.toLowerCase();
+        const sourceFilter = document.getElementById("source-filter").value;
+
+        const filtered = allNews.filter((item) => {
+          const matchesSearch = item.title.toLowerCase().includes(searchTerm);
+          const matchesSource =
+            sourceFilter === "all" || item.source === sourceFilter;
+          return matchesSearch && matchesSource;
+        });
+
+        renderNews(filtered);
+      }
+
+      function renderNews(news) {
+        const grid = document.getElementById("news-grid");
+        grid.innerHTML = "";
+
+        if (news.length === 0) {
+          grid.innerHTML =
+            '<p class="no-news">No news found matching your filters.</p>';
+          return;
+        }
+
+        news.forEach((item, index) => {
+          const card = document.createElement("div");
+          card.className = `news-card-bento ${index === 0 ? "featured" : ""}`;
+
+          // Format date
+          const date = new Date(item.date).toLocaleDateString(undefined, {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          });
+
+          card.innerHTML = `
+                    <div class="news-content">
+                        <span class="news-source">${item.source} • ${date}</span>
+                        <h3><a href="${item.link}" target="_blank">${item.title}</a></h3>
+                        <a href="${item.link}" target="_blank" class="read-more">Read Article ↗</a>
+                    </div>
+                `;
+          grid.appendChild(card);
+        });
+      }
+    </script>
+  </body>
+</html>
