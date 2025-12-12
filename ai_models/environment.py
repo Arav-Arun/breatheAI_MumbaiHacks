@@ -1,6 +1,6 @@
 import os
 import requests
-import random
+import math
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -39,8 +39,19 @@ def calculate_cigarettes(pm25: float) -> float:
     if pm25 <= 0: return 0.0
     return round(pm25 / 22.0, 1)
 
+def haversine_distance(lat1, lon1, lat2, lon2):
+    """Calculates distance between two points in km."""
+    R = 6371  # Earth radius in km
+    dlat = math.radians(lat2 - lat1)
+    dlon = math.radians(lon2 - lon1)
+    a = math.sin(dlat / 2) * math.sin(dlat / 2) + \
+        math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * \
+        math.sin(dlon / 2) * math.sin(dlon / 2)
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    return R * c
+
 def get_waqi_data(lat: float, lon: float) -> dict:
-    """Fetches AQI data from WAQI API."""
+    """Fetches AQI data from WAQI API with 25km distance check."""
     try:
         url = f"https://api.waqi.info/feed/geo:{lat};{lon}/?token={AQI_API_KEY}"
         response = requests.get(url, timeout=5)
@@ -50,7 +61,23 @@ def get_waqi_data(lat: float, lon: float) -> dict:
         if data.get('status') != 'ok':
             return {}
             
-        return data.get('data', {})
+        result = data.get('data', {})
+        
+        # Distance Check meant to avoid distant city data for rural areas
+        station_geo = result.get('city', {}).get('geo', [])
+        if len(station_geo) >= 2:
+            try:
+                station_lat, station_lon = float(station_geo[0]), float(station_geo[1])
+                dist = haversine_distance(lat, lon, station_lat, station_lon)
+                print(f"WAQI Station Distance: {dist:.1f} km ({result.get('city', {}).get('name')})")
+                
+                if dist > 25:
+                    print("WAQI Station too far (>25km). Fallback to OWM.")
+                    return {}
+            except Exception as e:
+                print(f"Distance calc error: {e}")
+
+        return result
     except Exception as e:
         print(f"WAQI API Error: {e}")
         return {}
@@ -126,10 +153,10 @@ def get_environment_data(lat: float, lon: float, override_city: str = None) -> d
             }
 
         # Determine City Name
-        # Priority: Override > WAQI > OWM
+        # Priority: Override > OWM (Weather Name) > WAQI (Station Name)
         city_name = override_city
         if not city_name:
-             city_name = waqi_data.get('city', {}).get('name', weather_data.get("name"))
+             city_name = weather_data.get("name", waqi_data.get('city', {}).get('name'))
 
         return {
             "temperature": weather_data.get("main", {}).get("temp"),
@@ -152,7 +179,7 @@ def get_coordinates(city: str, country_code: str = None) -> list:
         query = f"{city},{country_code}" if country_code else city
         geo_url = f"http://api.openweathermap.org/geo/1.0/direct?q={query}&limit=5&appid={OPENWEATHER_API_KEY}"
         
-        response = requests.get(geo_url)
+        response = requests.get(geo_url, timeout=5)
         response.raise_for_status()
         
         data = response.json()
@@ -178,7 +205,7 @@ def get_aqi_forecast(lat: float, lon: float) -> list:
     """Fetches 5-day AQI forecast."""
     try:
         url = f"http://api.openweathermap.org/data/2.5/air_pollution/forecast?lat={lat}&lon={lon}&appid={OPENWEATHER_API_KEY}"
-        response = requests.get(url)
+        response = requests.get(url, timeout=5)
         response.raise_for_status()
         data = response.json()
         
@@ -214,7 +241,7 @@ def get_aqi_history(lat: float, lon: float) -> list:
         end_ts = int(end_dt.timestamp())
         
         url = f"http://api.openweathermap.org/data/2.5/air_pollution/history?lat={lat}&lon={lon}&start={start_ts}&end={end_ts}&appid={OPENWEATHER_API_KEY}"
-        response = requests.get(url)
+        response = requests.get(url, timeout=5)
         response.raise_for_status()
         data = response.json()
         

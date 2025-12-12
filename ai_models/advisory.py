@@ -3,7 +3,7 @@ import json
 import os
 
 # User's Gemini API Key
-GEMINI_API_KEY = "AIzaSyD3X291LCTYJZKt3-bgDXKH-mGTp7afgFo"
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 def get_health_advice(env: dict) -> dict:
     """
@@ -12,9 +12,9 @@ def get_health_advice(env: dict) -> dict:
     """
     # API URL for Google Gemini (AI Model)
     try:
-        # We use 'gemini-1.5-flash' because it is faster and more stable than 'gemini-flash-latest'.
-        # If you see a 503 error, it means the model is overloaded or down.
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
+        # We use 'gemini-flash-latest' as it is the currently verified working model alias.
+        # 'gemini-1.5-flash' returned 404.
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key={GEMINI_API_KEY}"
         
         # Headers tell the server we are sending JSON data
         headers = {
@@ -29,30 +29,34 @@ def get_health_advice(env: dict) -> dict:
         elif aqi > 50: risk_level = "Moderate"
         else: risk_level = "Good"
         
+        location_context = f"{env.get('city', 'Unknown')}, {env.get('state', '')} {env.get('country', '')}".strip()
+
         prompt = f"""
         **Context:**
-        You are an expert environmental health scientist acting as a personal advisor.
+        You are an expert environmental health scientist acting as a personal advisor for a user in **{location_context}**.
         
         **Real-Time Data:**
         - AQI: {aqi} (Status: {risk_level})
-        - Location: {env.get('city', 'Unknown')}
+        - Location: {location_context}
         - Temperature: {env.get('temperature')}°C
         - Humidity: {env.get('humidity')}%
         - Pollutants: {env.get('pollutants')}
         
         **CRITICAL CONSTRAINTS:**
-        1. **CONSISTENCY**: You MUST accept the AQI is {aqi} ({risk_level}). Do NOT re-calculate or hallcinate a different AQI class.
-        2. **DEPTH**: Provide scientifically rigorous analysis (e.g., mention specific physiological effects of PM2.5/NO2).
+        1. **CONSISTENCY**: You MUST accept the AQI is {aqi} ({risk_level}).
+        2. **TONE**: Professional, empathetic, and concise. Avoid alarmist language but be firm.
         3. **FORMAT**: Return ONLY valid JSON.
+        4. **NO REPETITION**: The user already sees the AQI number and "Hazardous/Good" status in the header.
+        5. **LOCAL SPECIFICITY**: Use the location ({location_context}) to infer specific pollution sources (e.g. if hill station: "Forest fires/Tourism/Solid waste"; if city: "Traffic/Industrial"). Tailor advice to the specific geography (e.g. "Avoid valley floor" vs "Avoid main roads").
         
         **JSON Structure Required:**
         {{
-            "assessment": "A deep, 3-paragraph scientific analysis of the current air quality. Use markdown. Mention specific risks to respiratory/cardiovascular systems. NO generic advice.",
-            "morning_plan": "Specific, actionable advice for the Morning (e.g. 6AM-12PM). Mention exercise feasibility.",
-            "afternoon_plan": "Specific advice for Afternoon (e.g. 12PM-5PM). Focus on work/school/protection.",
-            "evening_plan": "Specific advice for Evening (e.g. 5PM-Sleep). Focus on sleep hygiene/ventilation.",
-            "sources": ["List", "of", "likely", "pollutant", "sources", "based", "on", "location/context"],
-            "source_narrative": "A 2-sentence explanation of WHY pollution is high (e.g. 'Stagnant winds trapping emissions...')."
+            "assessment": "A deep, 3-paragraph scientific analysis... Mention specific risks... Focus on the specific location context.",
+            "morning_plan": "Specific, actionable advice for the Morning...",
+            "afternoon_plan": "Specific advice for Afternoon...",
+            "evening_plan": "Specific advice for Evening...",
+            "sources": ["List", "of", "likely", "pollutant", "sources", "based", "on", "{location_context}"],
+            "source_narrative": "A 2-sentence explanation of WHY pollution is high in {location_context} (e.g. 'Inversions in the valley...')."
         }}
         """
         
@@ -65,38 +69,46 @@ def get_health_advice(env: dict) -> dict:
             }
         }
         
-        response = requests.post(url, headers=headers, json=payload)
-        response.raise_for_status()
+        response = requests.post(url, headers=headers, json=payload, timeout=30)
         
-        data = response.json()
-        text_response = data['candidates'][0]['content']['parts'][0]['text']
-        
-        # Parse JSON
-        result = json.loads(text_response)
-        
-        # Post-process: Ensure consistency if AI slipped up (though JSON mode usually fix it)
-        # We will prepend the standard header to the 'assessment' part
-        header = f"### Current Status: AQI {aqi} ({risk_level})\n"
-        if "assessment" in result:
-             # Remove self-references to AQI to avoid conflict, relying on our header
-             import re
-             clean_assessment = re.sub(r'AQI\s*:?\s*\d+', '', result["assessment"], flags=re.IGNORECASE)
-             result["assessment"] = header + clean_assessment
-             
-        return result
+        if response.status_code != 200:
+            return _get_fallback_advice(risk_level)
+            
+        result_json = response.json()
+        try:
+            # Extract text
+            text_content = result_json['candidates'][0]['content']['parts'][0]['text']
+            # Clean comments like ```json ... ```
+            clean_text = text_content.replace('```json', '').replace('```', '').strip()
+            
+            parsed_data = json.loads(clean_text)
+            
+            # Helper to safely add header
+            header = f"### Current Status: AQI {aqi} ({risk_level})\n"
+            if "assessment" in parsed_data:
+                 parsed_data["assessment"] = header + parsed_data["assessment"]
+            
+            return parsed_data
+            
+        except (KeyError, json.JSONDecodeError, IndexError) as e:
+            return _get_fallback_advice(risk_level)
 
     except Exception as e:
-        print(f"Gemini Error: {e}")
-        # Fallback to local planner if API fails
-        # Use structured local data so cards are NOT empty
-        from .planner import _get_comprehensive_data
-        fallback_data = _get_comprehensive_data(env)
-        return {
-            "assessment": fallback_data["assessment"],
-            "morning_plan": fallback_data["morning"],
-            "afternoon_plan": fallback_data["afternoon"],
-            "evening_plan": fallback_data["evening"]
-        }
+        return _get_fallback_advice(env)
+
+def _get_fallback_advice(env: dict) -> dict:
+    """Fallback if AI fails."""
+    # Use structured local data so cards are NOT empty
+    from .planner import _get_comprehensive_data
+    fallback_data = _get_comprehensive_data(env)
+    return {
+        "assessment": fallback_data["assessment"],
+        "morning_plan": fallback_data["morning"],
+        "afternoon_plan": fallback_data["afternoon"],
+        "evening_plan": fallback_data["evening"],
+        "sources": ["Data Unavailable", "Check Internet"],
+        "source_narrative": "Unable to analyze sources at this time due to AI service disruption."
+    }
 
 # Import local data
 try:
@@ -151,7 +163,7 @@ def get_emergency_info(city: str, country: str) -> dict:
             "project": RELEVANCE_PROJECT
         }
         
-        response = requests.post(url, headers=headers, json=payload)
+        response = requests.post(url, headers=headers, json=payload, timeout=10)
         response.raise_for_status()
         
         data = response.json()

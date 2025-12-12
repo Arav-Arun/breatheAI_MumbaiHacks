@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_from_directory
 # Flask is a micro-framework that allows us to build web applications in Python.
 # render_template: Sends HTML files to the user.
 # request: Handles incoming data (like city name).
@@ -7,6 +7,9 @@ from flask import Flask, render_template, request, jsonify
 import os # Used to interact with the operating system (e.g., file paths)
 import sys # Used to modify python path to find our custom modulest, send_from_directory
 from dotenv import load_dotenv
+
+load_dotenv()
+
 import os
 import sys
 
@@ -17,8 +20,6 @@ from ai_models.environment import get_environment_data, get_aqi_history, get_aqi
 from ai_models.advisory import get_health_advice, get_emergency_info
 from ai_models.planner import generate_daily_plan, analyze_forecast
 from ai_models.news import get_pollution_news
-
-load_dotenv()
 # Configure Flask to use paths in ../frontend
 app = Flask(__name__, 
             template_folder='../frontend/templates',
@@ -83,39 +84,16 @@ def get_env(lat, lon):
     except Exception as e:
         return jsonify({"error": f"Environment data error: {str(e)}"}), 500
 
-    # Initialize variables for AI/Local Analysis
+    # Initialize empty variables for AI
     ai_result = {}
-    health_text = "Health advice unavailable."
+    health_text = "Analysis pending..." # Placeholder
     plan = {}
+    
+    # Emergency Info - Fetched via /api/support
+    emergency_info = None
+
+    # News - Fetched via /api/news
     news_data = []
-    emergency_info = {}
-    forecast_analysis = {}
-
-    # Emergency Info
-    try:
-        city = env_data.get('city', 'India')
-        country = env_data.get('country', 'IN')
-        emergency_info = get_emergency_info(city, country)
-    except Exception as e:
-        emergency_info = {"error": str(e)}
-
-    # AI/Local Analysis
-    try:
-        ai_result = get_health_advice(env_data)
-        health_text = ai_result.get("assessment", "Analysis unavailable.")
-    except Exception as e:
-        health_text = f"Health advice unavailable (Error: {str(e)})"
-
-    try:
-        plan = generate_daily_plan(env_data, ai_data=ai_result)
-    except Exception as e:
-        plan = {"error": f"Planner error: {str(e)}"}
-
-    try:
-        city = env_data.get('city', 'India')
-        news_data = get_pollution_news(city)
-    except Exception as e:
-        news_data = []
 
     try:
         forecast_analysis = analyze_forecast(forecast_data)
@@ -125,21 +103,57 @@ def get_env(lat, lon):
     return jsonify({
         "environment": env_data,
         "cigarette_equivalent": cig_count,
-        "sources": ai_result.get("sources", []),
-        "source_narrative": ai_result.get("source_narrative", "Source analysis unavailable."),
+        "sources": [], # Will be fetched via /api/advisory
+        "source_narrative": "Loading analysis...",
         "forecast": forecast_data,
         "history": history_data,
         "forecast_analysis": forecast_analysis,
-        "health_advice": health_text,
-        "daily_plan": plan,
+        "health_advice": None, # Signal frontend to fetch AI
+        "daily_plan": None,
         "news": news_data,
         "emergency_info": emergency_info
     })
 
+@app.route('/api/advisory', methods=['POST'])
+def get_advisory():
+    """
+    Slow Endpoint: Generates AI Health Advice & Plan.
+    Expects json body with 'environment' data.
+    """
+    try:
+        env_data = request.json
+        if not env_data:
+            return jsonify({"error": "No environment data provided"}), 400
+
+        # AI Analysis
+        try:
+            ai_result = get_health_advice(env_data)
+        except Exception as e:
+            ai_result = {"assessment": "Analysis failed.", "sources": [], "source_narrative": "Unavailable."}
+
+        # Daily Plan
+        try:
+            plan = generate_daily_plan(env_data, ai_data=ai_result)
+        except Exception as e:
+            plan = {}
+
+        return jsonify({
+            "health_advice": ai_result.get("assessment", "Analysis unavailable."),
+            "sources": ai_result.get("sources", []),
+            "source_narrative": ai_result.get("source_narrative", "Source analysis unavailable."),
+            "daily_plan": plan
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/api/news/<city>')
 def get_city_news(city):
     try:
-        news = get_pollution_news(city, limit=20)
+        limit = request.args.get('limit', default=5, type=int)
+        # Cap limit to prevent abuse/timeouts
+        if limit > 100: limit = 100
+        
+        news = get_pollution_news(city, limit=limit)
         return jsonify(news)
     except Exception as e:
         return jsonify({"error": str(e)}), 500

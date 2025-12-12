@@ -6,13 +6,13 @@ A comprehensive **agentic AI system** designed to help individuals navigate Indi
 
 ## 📸 Screenshots
 
-|   Dashboard & Real-time Metrics    |       AI Health Assessment        |
-| :--------------------------------: | :-------------------------------: |
-| ![Dashboard](assets/dashboard.jpg) | ![Health Plan](assets/health.jpg) |
+| Dashboard & Real-time Metrics |      AI Health Assessment       |
+| :---------------------------: | :-----------------------------: |
+| ![Dashboard](assets/ss1.jpeg) | ![Health Plan](assets/ss2.jpeg) |
 
-|   Source Analysis & Cigarette Counter   |     Local Pollution News      |
-| :-------------------------------------: | :---------------------------: |
-| ![Source Analysis](assets/analysis.jpg) | ![News Page](assets/news.jpg) |
+| Source Analysis & Cigarette Counter |     Local Pollution News      |
+| :---------------------------------: | :---------------------------: |
+| ![Source Analysis](assets/ss3.jpeg) | ![News Page](assets/ss4.jpeg) |
 
 |    Respiratory Support Directory    |
 | :---------------------------------: |
@@ -84,8 +84,8 @@ breatheAI/
 │   │   └── support.html   # Support Page
 │   └── static/
 │       ├── css/           # Glassmorphism Styles
-│       ├── js/            # Client-side Logic
-│       └── assets/        # Images, Icons
+│       └── js/            # Client-side Logic
+├── assets/                # Images, Icons
 ├── .env                   # Environment Variables
 ├── requirements.txt       # Python Dependencies
 └── README.md              # Documentation

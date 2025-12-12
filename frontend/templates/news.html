@@ -21,9 +21,7 @@
   <body class="news-page">
     <div class="container">
       <header class="news-header">
-        <a href="#" onclick="history.back(); return false;" class="back-button"
-          >← Back to Dashboard</a
-        >
+        <a href="/" class="back-button">← Back to Dashboard</a>
         <h1>Local Pollution News</h1>
         <p id="news-subtitle">Latest updates for your location</p>
 
@@ -46,35 +44,72 @@
 
     <script>
       let allNews = [];
+      let displayedCount = 0;
+      const BATCH_SIZE = 10;
+      let isLoadingMore = false;
 
       document.addEventListener("DOMContentLoaded", async () => {
         const urlParams = new URLSearchParams(window.location.search);
         const city = urlParams.get("city") || "India";
+
+        // Fix Back Button
+        document.querySelector(
+          ".back-button"
+        ).href = `/?city=${encodeURIComponent(city)}`;
 
         document.getElementById(
           "news-subtitle"
         ).innerText = `Latest updates for ${city}`;
 
         try {
-          const response = await fetch(`/api/news/${city}`);
+          // Fetch large batch for infinite scroll simulation
+          const response = await fetch(
+            `/api/news/${encodeURIComponent(city)}?limit=50`
+          );
           allNews = await response.json();
 
           populateSourceFilter(allNews);
-          renderNews(allNews);
+
+          // Initial Render
+          renderNextBatch();
+
           document.getElementById("loading").style.display = "none";
 
           // Event Listeners
           document
             .getElementById("search-input")
-            .addEventListener("input", filterNews);
+            .addEventListener("input", () => {
+              displayedCount = 0;
+              document.getElementById("news-grid").innerHTML = "";
+              filterNews();
+            });
           document
             .getElementById("source-filter")
-            .addEventListener("change", filterNews);
+            .addEventListener("change", () => {
+              displayedCount = 0;
+              document.getElementById("news-grid").innerHTML = "";
+              filterNews();
+            });
+
+          // Infinite Scroll Listener
+          window.addEventListener("scroll", handleScroll);
         } catch (error) {
           console.error("Error:", error);
           document.getElementById("loading").innerHTML = "Failed to load news.";
         }
       });
+
+      function handleScroll() {
+        if (isLoadingMore) return;
+
+        const { scrollTop, scrollHeight, clientHeight } =
+          document.documentElement;
+
+        if (scrollTop + clientHeight >= scrollHeight - 50) {
+          // User is near bottom
+          renderNextBatch();
+        }
+      }
 
       function populateSourceFilter(news) {
         const sources = new Set(news.map((item) => item.source));
@@ -100,22 +135,41 @@
           return matchesSearch && matchesSource;
         });
 
-        renderNews(filtered);
+        // Reset grid and render filtered results (no pagination for simplicity on filter)
+        // Or re-implement pagination for filtered list if needed.
+        // For now, render all filtered to avoid complex state
+        renderNewsGrid(filtered);
       }
 
-      function renderNews(news) {
+      function renderNextBatch() {
+        if (displayedCount >= allNews.length) return;
+
+        isLoadingMore = true;
+        const end = Math.min(displayedCount + BATCH_SIZE, allNews.length);
+        const batch = allNews.slice(displayedCount, end);
+
+        appendNewsItems(batch);
+        displayedCount = end;
+        isLoadingMore = false;
+      }
+
+      function renderNewsGrid(news) {
         const grid = document.getElementById("news-grid");
         grid.innerHTML = "";
-
         if (news.length === 0) {
           grid.innerHTML =
             '<p class="no-news">No news found matching your filters.</p>';
           return;
         }
+        appendNewsItems(news);
+      }
 
-        news.forEach((item, index) => {
+      function appendNewsItems(news) {
+        const grid = document.getElementById("news-grid");
+
+        news.forEach((item) => {
           const card = document.createElement("div");
-          card.className = `news-card-bento ${index === 0 ? "featured" : ""}`;
+          card.className = "news-card-bento"; // Removed "featured" logic for simple infinite scroll
 
           // Format date
           const date = new Date(item.date).toLocaleDateString(undefined, {
@@ -125,12 +179,12 @@
           });
 
           card.innerHTML = `
-                    <div class="news-content">
-                        <span class="news-source">${item.source} • ${date}</span>
-                        <h3><a href="${item.link}" target="_blank">${item.title}</a></h3>
-                        <a href="${item.link}" target="_blank" class="read-more">Read Article ↗</a>
-                    </div>
-                `;
+                      <div class="news-content">
+                          <span class="news-source">${item.source} • ${date}</span>
+                          <h3><a href="${item.link}" target="_self">${item.title}</a></h3>
+                          <a href="${item.link}" target="_self" class="read-more">Read Article ↗</a>
+                      </div>
+                  `;
           grid.appendChild(card);
         });
       }

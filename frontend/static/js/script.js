@@ -1,5 +1,19 @@
 // Load countries on start
 window.onload = async function () {
+  // Check for city param to restore state (e.g. from News page back button)
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    const cityParam = urlParams.get("city");
+
+    if (cityParam) {
+      document.getElementById("city-input").value = cityParam;
+      searchLocation();
+      return; // Skip country load or load in background
+    }
+  } catch (e) {
+    console.error("URL param parsing error", e);
+  }
+
   try {
     const response = await fetch(
       "https://restcountries.com/v3.1/all?fields=name,cca2"
@@ -112,7 +126,7 @@ function selectLocation(loc) {
       longitude: loc.lon,
     },
   };
-  fetchData(position);
+  fetchData(position, loc.name);
 }
 
 function showLoading() {
@@ -201,33 +215,165 @@ async function fetchData(position, cityName = null) {
     }
 
     const response = await fetch(url);
+    if (!response.ok) throw new Error("Environment API failed");
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(
-        `Server Error ${response.status}: ${errorText.substring(0, 100)}`
-      );
-    }
-
-    let data;
-    const text = await response.text();
-    try {
-      data = JSON.parse(text);
-    } catch (e) {
-      throw new Error(`Invalid JSON response: ${text.substring(0, 100)}...`);
-    }
-
-    if (data.error) {
-      alert("API Error: " + data.error);
-      return;
-    }
+    const data = await response.json();
+    if (data.error) throw new Error(data.error);
 
     hideLoading();
     document.getElementById("dashboard").style.display = "grid";
+
+    // 1. Render immediate data (Weather, AQI, Charts)
     updateDashboard(data);
+
+    // 2. Async waterfall for secondary data
+    const env = data.environment;
+
+    // Trigger independent background fetches
+    // News is fetched with limit=5 for dashboard consistency
+    fetchNews(env.city);
+    fetchSupport(env.city, env.country);
+    fetchAdvisory(env);
   } catch (e) {
-    alert("Network Error: " + e);
+    alert("Error: " + e.message);
     hideLoading();
+  }
+}
+
+async function fetchNews(city) {
+  const container = document.getElementById("news-container");
+  if (!city) return;
+
+  try {
+    const res = await fetch(`/api/news/${encodeURIComponent(city)}`);
+    const news = await res.json();
+
+    if (news && news.length > 0) {
+      container.innerHTML = "";
+      news.forEach((item) => {
+        const div = document.createElement("div");
+        div.className = "news-item";
+        div.innerHTML = `
+                    <a href="${item.link}" target="_blank">${item.title}</a>
+                    <span class="news-source">${item.source} • ${item.date}</span>
+                `;
+        container.appendChild(div);
+      });
+      // Update Show More
+      const showMore = document.getElementById("show-more-news");
+      if (showMore) showMore.href = `/news?city=${encodeURIComponent(city)}`;
+    } else {
+      container.innerHTML =
+        '<div style="color: rgba(255,255,255,0.5);">No recent news.</div>';
+    }
+  } catch (e) {
+    container.innerHTML =
+      '<div style="color: #fca5a5;">Failed to load news.</div>';
+  }
+}
+
+async function fetchSupport(city, country) {
+  try {
+    const res = await fetch(
+      `/api/support?city=${encodeURIComponent(
+        city
+      )}&country=${encodeURIComponent(country)}`
+    );
+    const info = await res.json();
+
+    if (info && !info.error) {
+      document.getElementById("emerg-ambulance").innerText =
+        info.ambulance || "--";
+      document.getElementById("emerg-police").innerText = info.police || "--";
+      document.getElementById("emerg-general").innerText = info.general || "--";
+      document.getElementById("emerg-notes").innerText =
+        info.notes || "Emergency contacts loaded.";
+
+      const btn = document.getElementById("support-btn");
+      if (btn)
+        btn.href = `/support?city=${encodeURIComponent(
+          city
+        )}&country=${encodeURIComponent(country)}`;
+    }
+  } catch (e) {
+    console.error("Support fetch failed", e);
+  }
+}
+
+async function fetchAdvisory(env) {
+  const healthDiv = document.getElementById("health-content");
+  const sourcesContainer = document.getElementById("sources-container");
+  const sourceNarrative = document.getElementById("source-narrative");
+
+  try {
+    const res = await fetch("/api/advisory", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(env),
+    });
+    const data = await res.json();
+
+    // Render Health Advice
+    if (data.health_advice) {
+      healthDiv.innerHTML = marked.parse(data.health_advice);
+    } else {
+      healthDiv.innerText = "Advice unavailable.";
+    }
+
+    // Render Sources
+    if (data.sources) {
+      sourcesContainer.innerHTML = "";
+      data.sources.forEach((source) => {
+        const badge = document.createElement("div");
+        badge.className = "source-badge";
+        // Simple icon mapping
+        let icon = "🏭";
+        const s = source.toLowerCase();
+        if (s.includes("vehicle") || s.includes("traffic") || s.includes("car"))
+          icon = "🚗";
+        else if (
+          s.includes("crop") ||
+          s.includes("agriculture") ||
+          s.includes("burn")
+        )
+          icon = "🌾";
+        else if (s.includes("dust") || s.includes("construction")) icon = "🏗️";
+        else if (s.includes("industry") || s.includes("factory")) icon = "🏭";
+        else if (s.includes("fire") || s.includes("smoke")) icon = "🔥";
+
+        badge.innerHTML = `<span>${icon}</span> ${source}`;
+        sourcesContainer.appendChild(badge);
+      });
+      sourceNarrative.innerText = data.source_narrative || "";
+    }
+
+    // Render Planner (if returned by advisory)
+    if (data.daily_plan && !data.daily_plan.error) {
+      const plan = data.daily_plan;
+      document.getElementById("mask-rec").innerText = plan.mask_level || "--";
+      document.getElementById("hydration-rec").innerText = plan.hydration_ml
+        ? plan.hydration_ml + " ml"
+        : "--";
+
+      const renderPlan = (id, txt) => {
+        const el = document.getElementById(id);
+        if (el)
+          el.innerHTML = `<div class="planner-content">${marked.parse(
+            txt
+          )}</div>`;
+      };
+      renderPlan("plan-morning", plan.morning_plan);
+      renderPlan("plan-afternoon", plan.afternoon_plan);
+      renderPlan("plan-evening", plan.evening_plan);
+    }
+  } catch (e) {
+    console.error("AI Advisory Error:", e);
+    healthDiv.innerHTML = `
+            <div style="background: rgba(239, 68, 68, 0.2); padding: 1rem; border-radius: 8px; color: #fca5a5;">
+                <strong>⚠️ AI Unavailable</strong><br>
+                <span style="font-size: 0.9rem;">${e.message}</span>
+            </div>
+        `;
   }
 }
 
@@ -435,7 +581,11 @@ function updateDashboard(data) {
 
   // Health Advice
   const healthDiv = document.getElementById("health-content");
-  if (health.includes("Health advice unavailable")) {
+  if (!health) {
+    // Pending State
+    healthDiv.innerHTML =
+      '<span style="color: #94a3b8; font-style: italic;">Analyzing health impact...</span>';
+  } else if (health.includes("Health advice unavailable")) {
     let errorDetail = "The AI health reasoning agent could not connect.";
     const match = health.match(/\(Error: (.*?)\)/);
     if (match && match[1]) errorDetail = match[1];
@@ -447,15 +597,8 @@ function updateDashboard(data) {
             </div>
         `;
   } else {
-    // Render Markdown-ish
-    // 1. Headers
-    let html = health.replace(/### (.*?)\n/g, "<h3>$1</h3>");
-    // 2. Bold
-    html = html.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-    // 3. Newlines
-    html = html.replace(/\n/g, "<br>");
-
-    healthDiv.innerHTML = html;
+    // Render Markdown using marked.js
+    healthDiv.innerHTML = marked.parse(health);
   }
 
   // 5. Cigarette Equivalent & Source Analysis (New Features)
@@ -576,16 +719,10 @@ function updateDashboard(data) {
         return;
       }
 
-      // Parse Markdown
-      let html = content;
-      // Bold
-      html = html.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-      // Newlines to breaks
-      html = html.replace(/\n/g, "<br>");
-      // Bullet points to styled spans (optional, if AI still outputs bullets)
-      html = html.replace(/^- /gm, "• ");
-
-      container.innerHTML = `<div class="planner-content">${html}</div>`;
+      // Parse Markdown using marked.js
+      container.innerHTML = `<div class="planner-content">${marked.parse(
+        content
+      )}</div>`;
     };
 
     renderPlannerSection("plan-morning", plan.morning_plan);
