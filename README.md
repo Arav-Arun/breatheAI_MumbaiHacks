@@ -40,10 +40,10 @@ It uses **Google Gemini 1.5 Flash** to generate human-like reasoning, pollution 
 - **📡 Real-time Air Quality**  
   PM2.5, PM10, NO₂, SO₂, CO, O₃ — updated live.
 
-- **🚬 Cigarette Equivalent** **(New!)**  
+- **🚬 Cigarette Equivalent** 
   Instantly converts air pollution into the number of cigarettes inhaled properly displayed in a horizontal bar.
 
-- **🏭 Source Analysis** **(New!)**  
+- **🏭 Source Analysis** 
   AI analyzes location context to identify pollution sources (e.g., "Vehicle Emissions", "Stubble Burning").
 
 - **🧠 AI Health Advisory**  
@@ -60,9 +60,6 @@ It uses **Google Gemini 1.5 Flash** to generate human-like reasoning, pollution 
 
 - **📰 Local News Integration**  
   Pollution-specific news from Google News RSS.
-
-- **📱 Mobile Optimized**  
-  Smooth UI with glassmorphism and responsive design.
 
 ---
 
