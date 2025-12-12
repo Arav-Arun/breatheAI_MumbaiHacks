@@ -126,18 +126,14 @@ def get_emergency_info(city: str, country: str) -> dict:
         return EMERGENCY_DATA[city]
         
     # 2. Check Local Country Data (if city not found)
-    # We need the country code (e.g., 'AU') but 'country' arg might be 'Australia' or 'AU'
-    # The frontend sends 'AU' (cca2 code).
     if country in COUNTRY_DEFAULTS:
         return COUNTRY_DEFAULTS[country]
 
+    # 3. Use Google Gemini as Fallback
     try:
-        url = f"https://api-{RELEVANCE_REGION}.stack.tryrelevance.com/latest/studios/{TOOL_ID}/trigger"
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key={GEMINI_API_KEY}"
         
-        headers = {
-            "Authorization": f"{RELEVANCE_PROJECT}:{RELEVANCE_API_KEY}",
-            "Content-Type": "application/json"
-        }
+        headers = {"Content-Type": "application/json"}
         
         prompt = f"""
         **Task:**
@@ -157,32 +153,31 @@ def get_emergency_info(city: str, country: str) -> dict:
         """
         
         payload = {
-            "params": {
-                "prompt": prompt
-            },
-            "project": RELEVANCE_PROJECT
+            "contents": [{
+                "parts": [{"text": prompt}]
+            }],
+            "generationConfig": {
+                "responseMimeType": "application/json"
+            }
         }
         
         response = requests.post(url, headers=headers, json=payload, timeout=10)
-        response.raise_for_status()
+        # Check status manually to avoid crashing on 4xx/5xx
+        if response.status_code != 200:
+             raise Exception(f"Gemini API Error: {response.status_code}")
+             
+        result_json = response.json()
         
-        data = response.json()
-        output = data.get("output", {}).get("transformed", {}).get("advice")
-        
-        if not output:
-             output = data.get("output", {}).get("advice")
-
-        # Clean up code blocks if present
-        if "```json" in output:
-            output = output.split("```json")[1].split("```")[0]
-        elif "```" in output:
-            output = output.split("```")[1].split("```")[0]
-            
-        import json
-        return json.loads(output.strip())
+        try:
+            text_content = result_json['candidates'][0]['content']['parts'][0]['text']
+            clean_text = text_content.replace('```json', '').replace('```', '').strip()
+            return json.loads(clean_text)
+        except Exception:
+            # If parsing fails, use fallback below
+             raise Exception("Gemini parsing failed")
 
     except Exception as e:
-        print(f"Emergency info error: {e}")
+        # Fallback to International Default
         return {
             "ambulance": "112", 
             "police": "112", 
