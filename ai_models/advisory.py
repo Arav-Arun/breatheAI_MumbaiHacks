@@ -4,6 +4,7 @@ import os
 
 # User's Gemini API Key
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+MODEL_NAME = "gemini-flash-latest"
 
 def get_health_advice(env: dict) -> dict:
     """

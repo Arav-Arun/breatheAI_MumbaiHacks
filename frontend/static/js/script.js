@@ -56,13 +56,25 @@ async function searchLocation() {
   const city = document.getElementById("city-input").value;
   const country = document.getElementById("country-select").value;
   const resultsDiv = document.getElementById("search-results");
+  const errorDiv = document.getElementById("search-error");
+
+  // Reset UI
+  resultsDiv.style.display = "none";
+  if (errorDiv) {
+    errorDiv.style.display = "none";
+    errorDiv.innerText = "";
+  }
 
   if (!city) {
-    alert("Please enter a city name");
+    if (errorDiv) {
+      errorDiv.innerText = "Please enter a city name";
+      errorDiv.style.display = "block";
+    } else {
+      alert("Please enter a city name");
+    }
     return;
   }
 
-  resultsDiv.style.display = "none";
   showLoading();
 
   try {
@@ -88,12 +100,22 @@ async function searchLocation() {
     hideLoading();
 
     if (data.error) {
-      alert(data.error);
+      if (errorDiv) {
+        errorDiv.innerText = data.error;
+        errorDiv.style.display = "block";
+      } else {
+        alert(data.error);
+      }
       return;
     }
 
     if (data.length === 0) {
-      alert("No locations found.");
+      if (errorDiv) {
+        errorDiv.innerText = "Location not found. Please try another query.";
+        errorDiv.style.display = "block";
+      } else {
+        alert("No locations found.");
+      }
       return;
     }
 
@@ -113,8 +135,14 @@ async function searchLocation() {
       resultsDiv.style.display = "flex";
     }
   } catch (e) {
-    alert("Search Error: " + e);
+    console.error("Search Error:", e);
     hideLoading();
+    if (errorDiv) {
+      errorDiv.innerText = "Error: " + e.message;
+      errorDiv.style.display = "block";
+    } else {
+      alert("Search Error: " + e);
+    }
   }
 }
 
@@ -796,6 +824,8 @@ function toggleForecast() {
       : "";
   }
 }
+
+// --- Helper Functions ---
 
 function analyzeHistory(history) {
   if (!history || history.length === 0) return {};

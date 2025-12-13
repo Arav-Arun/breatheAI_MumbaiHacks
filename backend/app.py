@@ -4,14 +4,12 @@ from flask import Flask, render_template, request, jsonify, send_from_directory
 # request: Handles incoming data (like city name).
 # jsonify: Converts Python dictionaries to JSON format (for APIs).
 
-import os # Used to interact with the operating system (e.g., file paths)
-import sys # Used to modify python path to find our custom modulest, send_from_directory
+import os
+import sys
+import time
 from dotenv import load_dotenv
 
 load_dotenv()
-
-import os
-import sys
 
 # Add root directory to path to find ai_models
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -20,6 +18,27 @@ from ai_models.environment import get_environment_data, get_aqi_history, get_aqi
 from ai_models.advisory import get_health_advice, get_emergency_info
 from ai_models.planner import generate_daily_plan, analyze_forecast
 from ai_models.news import get_pollution_news
+# New Feature Import
+
+
+# --- Caching Configuration ---
+CACHE = {}
+CACHE_DURATION = 600  # 10 minutes in seconds
+
+def get_from_cache(key):
+    """Retrieve data from cache if valid."""
+    if key in CACHE:
+        entry = CACHE[key]
+        if time.time() - entry['timestamp'] < CACHE_DURATION:
+            print(f"⚡ Serving {key} from cache")
+            return entry['data']
+        else:
+            del CACHE[key]  # Expired
+    return None
+
+def save_to_cache(key, data):
+    """Save data to cache with timestamp."""
+    CACHE[key] = {'data': data, 'timestamp': time.time()}
 # Configure Flask to use paths in ../frontend
 app = Flask(__name__, 
             template_folder='../frontend/templates',
@@ -31,7 +50,9 @@ app = Flask(__name__,
 def serve_assets(filename):
     # Serve from the root 'assets' folder
     assets_path = os.path.join(os.path.dirname(app.root_path), 'assets')
-    return send_from_directory(assets_path, filename)
+    response = send_from_directory(assets_path, filename)
+    response.headers['Cache-Control'] = 'public, max-age=86400' # Cache for 1 day
+    return response
 
 @app.route('/favicon.ico')
 def favicon():
@@ -71,6 +92,14 @@ def get_env(lat, lon):
     try:
         # Check for city override (e.g. from IP geolocation)
         override_city = request.args.get("city")
+        
+        # Cache Key: Combine lat, lon, and city
+        cache_key = f"env_{lat}_{lon}_{override_city}"
+        
+        # Try Cache
+        cached_result = get_from_cache(cache_key)
+        if cached_result:
+            return jsonify(cached_result)
 
         # Raw data
         env_data = get_environment_data(lat, lon, override_city=override_city)
@@ -100,7 +129,7 @@ def get_env(lat, lon):
     except Exception as e:
         forecast_analysis = {}
 
-    return jsonify({
+    response_data = {
         "environment": env_data,
         "cigarette_equivalent": cig_count,
         "sources": [], # Will be fetched via /api/advisory
@@ -112,7 +141,12 @@ def get_env(lat, lon):
         "daily_plan": None,
         "news": news_data,
         "emergency_info": emergency_info
-    })
+    }
+    
+    # Save to Cache
+    save_to_cache(cache_key, response_data)
+    
+    return jsonify(response_data)
 
 @app.route('/api/advisory', methods=['POST'])
 def get_advisory():
@@ -169,6 +203,8 @@ def get_support_info():
         
     info = get_emergency_info(city, country)
     return jsonify(info)
+
+
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5001, debug=False)

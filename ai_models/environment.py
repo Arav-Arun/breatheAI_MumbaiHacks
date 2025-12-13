@@ -72,10 +72,10 @@ def get_waqi_data(lat: float, lon: float) -> dict:
                 print(f"WAQI Station Distance: {dist:.1f} km ({result.get('city', {}).get('name')})")
                 
                 if dist > 25:
-                    print("WAQI Station too far (>25km). Fallback to OWM.")
+                    # print("WAQI Station too far (>25km). Fallback to OWM.")
                     return {}
             except Exception as e:
-                print(f"Distance calc error: {e}")
+                pass # print(f"Distance calc error: {e}")
 
         return result
     except Exception as e:
@@ -141,8 +141,8 @@ def get_environment_data(lat: float, lon: float, override_city: str = None) -> d
                 }
             }
         else:
-            # Fallback to OWM
-            print("WAQI failed, falling back to OWM...")
+            # Fallback to OWM (OpenWeatherMap) if WAQI is unavailable or too far
+            # print("WAQI failed, falling back to OWM...")
             aqi_data = get_owm_pollution(lat, lon)
 
         # Default if both fail

@@ -4,20 +4,6 @@ A comprehensive **agentic AI system** designed to help individuals navigate Indi
 
 ---
 
-## 📸 Screenshots
-
-| Dashboard & Real-time Metrics |      AI Health Assessment       |
-| :---------------------------: | :-----------------------------: |
-| ![Dashboard](assets/ss1.jpeg) | ![Health Plan](assets/ss2.jpeg) |
-
-| Source Analysis & Cigarette Counter |     Local Pollution News      |
-| :---------------------------------: | :---------------------------: |
-| ![Source Analysis](assets/ss3.jpeg) | ![News Page](assets/ss4.jpeg) |
-
-|    Respiratory Support Directory    |
-| :---------------------------------: |
-| ![Support Page](assets/support.jpg) |
-
 ---
 
 # 🌬️ What is BreatheAI?
@@ -40,10 +26,10 @@ It uses **Google Gemini 1.5 Flash** to generate human-like reasoning, pollution 
 - **📡 Real-time Air Quality**  
   PM2.5, PM10, NO₂, SO₂, CO, O₃ — updated live.
 
-- **🚬 Cigarette Equivalent** 
+- **🚬 Cigarette Equivalent**
   Instantly converts air pollution into the number of cigarettes inhaled properly displayed in a horizontal bar.
 
-- **🏭 Source Analysis** 
+- **🏭 Source Analysis**
   AI analyzes location context to identify pollution sources (e.g., "Vehicle Emissions", "Stubble Burning").
 
 - **🧠 AI Health Advisory**  
@@ -60,6 +46,12 @@ It uses **Google Gemini 1.5 Flash** to generate human-like reasoning, pollution 
 
 - **📰 Local News Integration**  
   Pollution-specific news from Google News RSS.
+
+- **⚡ High Performance Caching**
+  In-memory caching of environment data to reduce API limit usage and speed up repeated requests.
+
+- **📱 Mobile Optimized**  
+  Smooth UI with glassmorphism and responsive design.
 
 ---
 

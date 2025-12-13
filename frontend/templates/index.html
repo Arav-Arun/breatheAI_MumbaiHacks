@@ -8,8 +8,6 @@
     <link rel="shortcut icon" href="{{ url_for('serve_assets', filename='favicon.jpg') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=9">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script defer src="/_vercel/insights/script.js"></script>
@@ -36,6 +34,7 @@
                     <button onclick="searchLocation()">🔍 Find</button>
                     
                     <div id="search-results" class="search-results"></div>
+                    <div id="search-error" class="search-error" style="display: none; color: #ef4444; margin-top: 0.5rem; font-size: 0.9rem;"></div>
                 </div>
                 
                 <div class="location-sub-controls">
@@ -151,10 +150,7 @@
                 <div class="card-sub">Based on AQI</div>
             </div>
 
-            <!-- 5. Micro-Zone Map (Full Width) -->
 
-
-            <!-- 4. Cigarette Equivalent (New Feature) -->
             <div class="card card-cigarette">
                 <div class="card-label">Daily Exposure</div>
                 <div class="cig-container">
