@@ -4,7 +4,6 @@ A comprehensive **agentic AI system** designed to help individuals navigate Indi
 
 ---
 
----
 
 # 🌬️ What is BreatheAI?
 
