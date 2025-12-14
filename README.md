@@ -1,4 +1,4 @@
-# BreatheAI — Clarity in Every Breath 🌬️
+# BreatheAI — Clarity in Every Breath 
 
 A comprehensive **agentic AI system** designed to help individuals navigate India’s severe air-pollution crisis. BreatheAI uses autonomous agents to collect real-time data, reason about health impacts, and generate personalized action plans.
 
@@ -45,13 +45,6 @@ It uses **Google Gemini 1.5 Flash** to generate human-like reasoning, pollution 
 
 - **📰 Local News Integration**  
   Pollution-specific news from Google News RSS.
-
-- **⚡ High Performance Caching**
-  In-memory caching of environment data to reduce API limit usage and speed up repeated requests.
-
-- **📱 Mobile Optimized**  
-  Smooth UI with glassmorphism and responsive design.
-
 ---
 
 ## 📂 Project Structure
@@ -121,7 +114,7 @@ Visit `http://localhost:5001` in your browser.
 
 ---
 
-## � Tech Stack
+## Tech Stack : 
 
 - **Backend**: Python, Flask
 - **AI/LLM**: Google Gemini 1.5 Flash (Agentic Reasoning)
@@ -131,7 +124,7 @@ Visit `http://localhost:5001` in your browser.
 
 ---
 
-## 👥 Team Tetrabytes
+##Team Tetrabytes : 
 
 - Arav Arun
 - Harshad Saha
